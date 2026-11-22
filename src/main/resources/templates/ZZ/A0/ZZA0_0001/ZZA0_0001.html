@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SaHinh-B2</title>
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="topbar"><a class="brand" href="/MS/MSA0_0100">SaHinh-B2</a><nav id="main-nav" style="display:flex;gap:14px;flex-wrap:wrap;"><a href="/MS/MSA0_0100">Dashboard</a><a href="/SH/SHA0_0100">Cấu hình bài</a><a href="/SH/SHA0_0200">Cấu hình lỗi</a><a href="/SH/SHA0_0300">Preset</a><a href="/SH/SHA0_0400">Luồng 1</a><a href="/SH/SHA0_0500">Luồng 2</a><a href="/SH/SHA0_0600">Luồng 3</a><a href="/SH/SHA0_0700">Kết quả</a></nav><span class="spacer"></span><span id="current-user"></span><button onclick="logout()" style="padding:6px 12px;">Đăng xuất</button></div>
+<div class="container">
+
+<div class="card" style="max-width:420px;margin:40px auto;">
+<h1>Đăng nhập — SaHinh-B2</h1>
+<p class="muted">Tài khoản seed: admin / admin123 (Superadmin), teacher / teacher123, student / student123. Đổi mật khẩu sau lần đăng nhập đầu tiên.</p>
+<label>Tên đăng nhập</label><input id="username" value="admin">
+<label>Mật khẩu</label><input id="password" type="password" value="admin123">
+<div style="height:12px"></div>
+<button onclick="doLogin()" style="width:100%">Đăng nhập</button>
+<p id="msg" class="muted"></p>
+</div>
+<script>
+async function doLogin() {
+  const r = await fetch('/api/ZZ/A0/ZZA0_0001/login', { method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: document.getElementById('username').value,
+      password: document.getElementById('password').value }) });
+  const j = await r.json();
+  if (j.code === 200) { window.location.href = '/MS/MSA0_0100'; }
+  else { document.getElementById('msg').textContent = j.message; }
+}
+</script>
+
+</div>
+<script src="/js/app.js"></script>
+
+</body>
+</html>

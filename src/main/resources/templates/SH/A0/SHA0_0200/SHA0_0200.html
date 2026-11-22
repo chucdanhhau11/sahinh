@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SaHinh-B2</title>
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="topbar"><a class="brand" href="/MS/MSA0_0100">SaHinh-B2</a><nav id="main-nav" style="display:flex;gap:14px;flex-wrap:wrap;"><a href="/MS/MSA0_0100">Dashboard</a><a href="/SH/SHA0_0100">Cấu hình bài</a><a href="/SH/SHA0_0200">Cấu hình lỗi</a><a href="/SH/SHA0_0300">Preset</a><a href="/SH/SHA0_0400">Luồng 1</a><a href="/SH/SHA0_0500">Luồng 2</a><a href="/SH/SHA0_0600">Luồng 3</a><a href="/SH/SHA0_0700">Kết quả</a></nav><span class="spacer"></span><span id="current-user"></span><button onclick="logout()" style="padding:6px 12px;">Đăng xuất</button></div>
+<div class="container">
+
+<h1>Cấu hình Lỗi &amp; Điểm liệt</h1>
+<p class="muted">Sửa điểm trừ và tick Liệt cho từng lỗi. Lỗi liệt: thầy bấm - vào lỗi đó thì dừng thi ngay, hiện RỚT. Ví dụ đã chốt: “Tắt máy trên dốc” là liệt.</p>
+<div class="card"><label>Preset <select id="preset" style="width:260px"></select></label></div>
+<div class="card"><div id="errors">Đang tải...</div></div>
+<script>
+let presetId = 1;
+async function loadPresets() {
+  const r = await api('/api/SH/A0/SHA0_0300/presets');
+  const sel = document.getElementById('preset');
+  sel.innerHTML = r.data.map(function (p) { return '<option value="' + p.ID + '">' + p.NAME + '</option>'; }).join('');
+  presetId = Number(sel.value);
+  sel.onchange = function () { presetId = Number(sel.value); loadErrors(); };
+  loadErrors();
+}
+async function loadErrors() {
+  const r = await api('/api/SH/A0/SHA0_0200/errors?presetId=' + presetId);
+  document.getElementById('errors').innerHTML = '<table><tr><th>Bài</th><th>Lỗi</th><th>Trừ điểm</th><th>Liệt</th><th></th></tr>'
+    + r.data.map(function (e) {
+      return '<tr><td>' + (e.LESSON_NO === 0 ? 'Chung' : e.LESSON_NO) + '</td><td>' + e.NAME + '</td>'
+        + '<td><input style="width:80px" type="number" value="' + (e.DEDUCT_POINTS || 0) + '" id="de-' + e.ID + '"></td>'
+        + '<td><input type="checkbox" style="width:auto" id="li-' + e.ID + '"' + (e.IS_LIET === 1 ? ' checked' : '') + '></td>'
+        + '<td><button onclick="saveError(' + e.ID + ')">Lưu</button></td></tr>';
+    }).join('') + '</table>';
+}
+async function saveError(id) {
+  const r = await api('/api/SH/A0/SHA0_0200/error', { method: 'POST', body: JSON.stringify({
+    id: id, deduct: Number(document.getElementById('de-' + id).value),
+    isLiet: document.getElementById('li-' + id).checked ? 1 : 0 }) });
+  toast(r.message);
+}
+loadPresets();
+</script>
+
+</div>
+<script src="/js/app.js"></script>
+
+</body>
+</html>

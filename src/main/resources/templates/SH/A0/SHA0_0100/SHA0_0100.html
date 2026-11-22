@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SaHinh-B2</title>
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="topbar"><a class="brand" href="/MS/MSA0_0100">SaHinh-B2</a><nav id="main-nav" style="display:flex;gap:14px;flex-wrap:wrap;"><a href="/MS/MSA0_0100">Dashboard</a><a href="/SH/SHA0_0100">Cấu hình bài</a><a href="/SH/SHA0_0200">Cấu hình lỗi</a><a href="/SH/SHA0_0300">Preset</a><a href="/SH/SHA0_0400">Luồng 1</a><a href="/SH/SHA0_0500">Luồng 2</a><a href="/SH/SHA0_0600">Luồng 3</a><a href="/SH/SHA0_0700">Kết quả</a></nav><span class="spacer"></span><span id="current-user"></span><button onclick="logout()" style="padding:6px 12px;">Đăng xuất</button></div>
+<div class="container">
+
+<h1>Cấu hình Bài &amp; Bước nhỏ</h1>
+<p class="muted">Chọn preset, sửa lời loa / số giây từng bài và từng bước nhỏ. Giây chỉnh tự do — hệ thống không ép tổng 18 phút. Preset mẫu của Superadmin không sửa trực tiếp được: hãy sang mục Preset bấm “Tự setup riêng”.</p>
+<div class="card"><div class="row">
+<label style="margin:0">Preset <select id="preset" style="width:260px"></select></label>
+<label style="margin:0"><input type="checkbox" id="detailed" style="width:auto"> Hướng dẫn chi tiết (bật bước nhỏ)</label>
+<button onclick="saveDetailed()">Lưu công tắc</button></div></div>
+<div class="card"><div id="lessons">Đang tải...</div></div>
+<script>
+let presetId = 1;
+async function loadPresets() {
+  const r = await api('/api/SH/A0/SHA0_0300/presets');
+  const sel = document.getElementById('preset');
+  sel.innerHTML = r.data.map(function (p) { return '<option value="' + p.ID + '">' + p.NAME + '</option>'; }).join('');
+  presetId = Number(sel.value);
+  sel.onchange = function () { presetId = Number(sel.value); loadLessons(); };
+  loadLessons();
+}
+async function loadLessons() {
+  const r = await api('/api/SH/A0/SHA0_0100/lessons?presetId=' + presetId);
+  const box = document.getElementById('lessons');
+  box.innerHTML = '';
+  for (const l of r.data) {
+    const div = document.createElement('div');
+    div.innerHTML = '<h2>Bài ' + l.LESSON_NO + ': ' + l.NAME + '</h2>'
+      + '<div class="row"><input style="flex:2" value="' + (l.ANNOUNCE_TEXT || '') + '" id="an-' + l.ID + '">'
+      + '<input style="width:110px" type="number" value="' + l.DURATION_SECONDS + '" id="du-' + l.ID + '"> giây '
+      + '<button onclick="saveLesson(' + l.ID + ')">Lưu bài</button>'
+      + '<button class="secondary" onclick="loadSteps(' + l.ID + ', this)">Xem bước nhỏ</button></div><div id="steps-' + l.ID + '"></div>';
+    box.appendChild(div);
+  }
+  const pr = await api('/api/SH/A0/SHA0_0300/presets');
+  const cur = pr.data.find(function (p) { return p.ID === presetId; });
+  if (cur) document.getElementById('detailed').checked = cur.DETAILED_ENABLED === 1;
+}
+async function saveLesson(id) {
+  const r = await api('/api/SH/A0/SHA0_0100/lesson', { method: 'POST', body: JSON.stringify({
+    id: id, announce: document.getElementById('an-' + id).value,
+    duration: Number(document.getElementById('du-' + id).value) }) });
+  toast(r.message);
+}
+async function loadSteps(lessonId, btn) {
+  const r = await api('/api/SH/A0/SHA0_0100/steps?lessonId=' + lessonId);
+  document.getElementById('steps-' + lessonId).innerHTML = r.data.map(function (s) {
+    return '<div class="row"><span style="width:180px">Bước ' + s.STEP_NO + ': ' + s.NAME + '</span>'
+      + '<input style="flex:2" value="' + (s.ANNOUNCE_TEXT || '') + '" id="san-' + s.ID + '">'
+      + '<input style="width:90px" type="number" value="' + s.DURATION_SECONDS + '" id="sdu-' + s.ID + '"> giây '
+      + '<label><input type="checkbox" style="width:auto" id="sen-' + s.ID + '"' + (s.ENABLED === 1 ? ' checked' : '') + '> Bật</label>'
+      + '<button onclick="saveStep(' + s.ID + ')">Lưu</button></div>';
+  }).join('') || '<p class="muted">Bài này không có bước nhỏ.</p>';
+}
+async function saveStep(id) {
+  const r = await api('/api/SH/A0/SHA0_0100/step', { method: 'POST', body: JSON.stringify({
+    id: id, announce: document.getElementById('san-' + id).value,
+    duration: Number(document.getElementById('sdu-' + id).value),
+    enabled: document.getElementById('sen-' + id).checked ? 1 : 0 }) });
+  toast(r.message);
+}
+async function saveDetailed() {
+  const r = await api('/api/SH/A0/SHA0_0100/detail-toggle', { method: 'POST', body: JSON.stringify({
+    presetId: presetId, detailed: document.getElementById('detailed').checked }) });
+  toast(r.message);
+}
+loadPresets();
+</script>
+
+</div>
+<script src="/js/app.js"></script>
+
+</body>
+</html>

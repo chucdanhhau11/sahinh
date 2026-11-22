@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SaHinh-B2</title>
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="topbar"><a class="brand" href="/MS/MSA0_0100">SaHinh-B2</a><nav id="main-nav" style="display:flex;gap:14px;flex-wrap:wrap;"><a href="/MS/MSA0_0100">Dashboard</a><a href="/SH/SHA0_0100">Cấu hình bài</a><a href="/SH/SHA0_0200">Cấu hình lỗi</a><a href="/SH/SHA0_0300">Preset</a><a href="/SH/SHA0_0400">Luồng 1</a><a href="/SH/SHA0_0500">Luồng 2</a><a href="/SH/SHA0_0600">Luồng 3</a><a href="/SH/SHA0_0700">Kết quả</a></nav><span class="spacer"></span><span id="current-user"></span><button onclick="logout()" style="padding:6px 12px;">Đăng xuất</button></div>
+<div class="container">
+
+<h1>Mẫu cấu hình (Preset)</h1>
+<p class="muted">Superadmin setup sẵn bộ mẫu. Thầy bấm <b>Áp dụng</b> để dùng luôn. Muốn khác thì bấm <b>Tự setup riêng</b> — hệ thống copy ra bản riêng cho thầy, không ghi đè bản gốc.</p>
+<div class="card"><div id="presets">Đang tải...</div></div>
+<div class="card"><h2>Tạo preset mới (chỉ Superadmin)</h2>
+<label>Tên preset</label><input id="new-name" value="Preset mới">
+<div style="height:12px"></div><button onclick="createPreset()">Tạo preset</button></div>
+<script>
+async function loadPresets() {
+  const r = await api('/api/SH/A0/SHA0_0300/presets');
+  document.getElementById('presets').innerHTML = r.data.map(function (p) {
+    return '<div class="row" style="margin-bottom:10px"><b>' + p.NAME + '</b>'
+      + '<span class="muted">chủ: ' + (p.OWNER_NAME || '') + (p.IS_TEMPLATE === 1 ? ' (mẫu)' : ' (bản riêng)') + '</span>'
+      + '<button onclick="applyPreset(' + p.ID + ')">Áp dụng</button>'
+      + '<button class="secondary" onclick="clonePreset(' + p.ID + ')">Tự setup riêng</button></div>';
+  }).join('');
+}
+async function applyPreset(id) { const r = await api('/api/SH/A0/SHA0_0300/apply', { method: 'POST', body: JSON.stringify({ presetId: id }) }); toast(r.message); }
+async function clonePreset(id) {
+  const name = prompt('Tên bản riêng của bạn:', '');
+  const r = await api('/api/SH/A0/SHA0_0300/clone', { method: 'POST', body: JSON.stringify({ presetId: id, name: name }) });
+  toast(r.message + (r.data ? ' (id=' + r.data.id + ')' : '')); loadPresets();
+}
+async function createPreset() {
+  const r = await api('/api/SH/A0/SHA0_0300/create', { method: 'POST', body: JSON.stringify({ name: document.getElementById('new-name').value }) });
+  toast(r.message); loadPresets();
+}
+loadPresets();
+</script>
+
+</div>
+<script src="/js/app.js"></script>
+
+</body>
+</html>

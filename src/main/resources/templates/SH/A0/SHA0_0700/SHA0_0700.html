@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SaHinh-B2</title>
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="topbar"><a class="brand" href="/MS/MSA0_0100">SaHinh-B2</a><nav id="main-nav" style="display:flex;gap:14px;flex-wrap:wrap;"><a href="/MS/MSA0_0100">Dashboard</a><a href="/SH/SHA0_0100">Cấu hình bài</a><a href="/SH/SHA0_0200">Cấu hình lỗi</a><a href="/SH/SHA0_0300">Preset</a><a href="/SH/SHA0_0400">Luồng 1</a><a href="/SH/SHA0_0500">Luồng 2</a><a href="/SH/SHA0_0600">Luồng 3</a><a href="/SH/SHA0_0700">Kết quả</a></nav><span class="spacer"></span><span id="current-user"></span><button onclick="logout()" style="padding:6px 12px;">Đăng xuất</button></div>
+<div class="container">
+
+<h1>Kết quả &amp; Lịch sử phiên thi</h1>
+<div class="card" id="detail"><h2>Chi tiết phiên thi</h2><div id="detail-body">Chọn 1 phiên trong bảng lịch sử, hoặc mở link ?sessionId=...</div></div>
+<div class="card"><h2>Lịch sử</h2><div id="history">Đang tải...</div></div>
+<script>
+async function loadHistory() {
+  const r = await api('/api/SH/A0/SHA0_0700/history');
+  document.getElementById('history').innerHTML = r.data.length === 0 ? 'Chưa có phiên thi nào.'
+    : '<table><tr><th>ID</th><th>Học viên</th><th>Luồng</th><th>Điểm</th><th>Kết quả</th><th>Lý do trượt</th><th></th></tr>'
+    + r.data.map(function (s) {
+      return '<tr><td>' + s.ID + '</td><td>' + (s.STUDENT_NAME || '') + '</td><td>' + s.FLOW + '</td><td>' + s.SCORE
+        + '</td><td>' + s.STATUS + '</td><td>' + (s.FAILED_REASON || '') + '</td>'
+        + '<td><button onclick="loadDetail(' + s.ID + ')">Xem</button></td></tr>';
+    }).join('') + '</table>';
+}
+async function loadDetail(id) {
+  const r = await api('/api/SH/A0/SHA0_0700/result?sessionId=' + id);
+  if (r.code !== 200) { toast(r.message); return; }
+  const d = r.data;
+  document.getElementById('detail-body').innerHTML =
+    '<p><b>Điểm: ' + d.SCORE + ' / 100</b> — ' + d.STATUS + (d.FAILED_REASON ? ' — ' + d.FAILED_REASON : '') + '</p>'
+    + (d.logs && d.logs.length ? '<table><tr><th>Bài</th><th>Bước</th><th>Kết quả</th><th>Trừ</th><th>Ghi chú</th></tr>'
+    + d.logs.map(function (l) { return '<tr><td>' + l.LESSON_NO + '</td><td>' + (l.STEP_NO || '') + '</td><td>' + l.RESULT + '</td><td>' + l.DEDUCT_POINTS + '</td><td>' + (l.NOTE || '') + '</td></tr>'; }).join('') + '</table>' : '<p class="muted">Không có lỗi nào được ghi.</p>');
+}
+const q = new URLSearchParams(window.location.search);
+if (q.get('sessionId')) loadDetail(Number(q.get('sessionId')));
+loadHistory();
+</script>
+
+</div>
+<script src="/js/app.js"></script>
+
+</body>
+</html>
