@@ -1,14 +1,23 @@
 
 // app.js — dùng chung: session, menu động từ DB, fetch helper, toast.
 async function api(path, opts) {
-  const r = await fetch(path, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opts || {}));
-  if (r.status === 401) { window.location.href = '/login'; throw new Error('UNAUTHORIZED'); }
+  const o = opts || {};
+  const r = await fetch(path, Object.assign({ headers: { 'Content-Type': 'application/json' } }, o));
+  if (r.status === 401) {
+    // S08: KHÔNG chuyển về /login khi đã ở trang login ("/" hoặc "/login").
+    // Trước đây loadSession()/loadMenu() trên trang login nhận 401 rồi tự
+    // gán location.href = '/login' -> trang tải lại -> lại gọi session ->
+    // lại 401 -> lặp vô hạn, không nhập hay bấm gì được.
+    const onLoginPage = window.location.pathname === '/login' || window.location.pathname === '/';
+    if (!o.noRedirect && !onLoginPage) { window.location.href = '/login'; }
+    throw new Error('UNAUTHORIZED');
+  }
   return r.json();
 }
 function toast(msg) { alert(msg); }
 async function loadSession() {
   try {
-    const r = await api('/api/ZZ/A0/ZZA0_0001/session');
+    const r = await api('/api/ZZ/A0/ZZA0_0001/session', { noRedirect: true });
     if (r.code === 200 && r.data) {
       const el = document.getElementById('current-user');
       if (el) el.textContent = r.data.FULL_NAME + ' (' + r.data.ROLE_CODE + ')';
@@ -22,7 +31,7 @@ async function loadMenu() {
   const nav = document.getElementById('main-nav');
   if (!nav) return;
   try {
-    const r = await api('/api/MS/A0/MSA0_0200/menu');
+    const r = await api('/api/MS/A0/MSA0_0200/menu', { noRedirect: true });
     if (r.code === 200) {
       nav.innerHTML = r.data.map(function (m) {
         return '<a href="' + m.PAGE_URL + '">' + m.FUNCTION_NAME + '</a>';

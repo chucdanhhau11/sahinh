@@ -345,3 +345,21 @@ Không tạo migration mới nếu không có thay đổi schema thực sự.
   V1–V3 không sửa. CHƯA verify live (giống S01–S06): `mvn test`,
   `docker compose up --build`, app thật + MySQL + chạy tay 3 luồng +
   migrate V4 thật — cần máy dev, xem checklist ở cuối report S07 §F.
+
+### S08 — 2026-11-23 — Fix vòng lặp tải lại trang login (report_session_08)
+
+- User chạy `docker compose up --build` lên được nhưng trang login load
+  liên tục, không nhập/bấm được. Nguyên nhân: `app.js` `api()` thấy HTTP
+  401 là chuyển về `/login`, trong khi `PermissionFilter` không cho
+  `/api/ZZ/A0/ZZA0_0001/session` qua nên `loadSession()` trên trang login
+  luôn nhận 401 -> tải lại -> lại 401 -> lặp vô hạn.
+- Sửa 2 file: Filter thêm `/session` + `/logout` vào public (trx trả JSON
+  `{code:401}` HTTP 200 như thiết kế); `api()` chỉ redirect khi 401 ở
+  trang khác trang login + cờ `noRedirect` cho `loadSession()`/`loadMenu()`.
+  Trang thi hết phiên vẫn bị đẩy về `/login` như cũ.
+- Verify trong sandbox: `node --check` OK; mô phỏng JS 4/4 PASS (login+401
+  không redirect, dashboard+401 vẫn redirect, login+200 hiện tên user);
+  `javac` main + test exit 0; `ExamEngineTest` 8/8 PASS.
+- CHƯA verify live: sandbox không có Docker/MySQL, bước cài MariaDB bằng
+  `apt` đã bị user từ chối nên không start được app thật ở đây. Cần chạy
+  lại `docker compose up --build` trên máy dev và đăng nhập thử.

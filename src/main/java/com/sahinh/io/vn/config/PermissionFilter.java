@@ -39,7 +39,12 @@ public class PermissionFilter implements Filter {
                 || path.startsWith("/css/") || path.startsWith("/js/")
                 || path.startsWith("/images/") || "/favicon.ico".equals(path)
                 || path.startsWith("/actuator/health")
-                || path.equals("/api/ZZ/A0/ZZA0_0001/login");
+                || path.equals("/api/ZZ/A0/ZZA0_0001/login")
+                // S08: /session phải qua được Filter để trx trả JSON {code:401}
+                // (HTTP 200) cho app.js xử lý êm. Trước đây Filter chặn bằng
+                // HTTP 401 -> app.js chuyển về /login -> tải lại vô hạn.
+                || path.equals("/api/ZZ/A0/ZZA0_0001/session")
+                || path.equals("/api/ZZ/A0/ZZA0_0001/logout");
     }
 
     @Override
