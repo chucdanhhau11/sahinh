@@ -21,9 +21,11 @@ public class SHA0_0700_trx {
     }
 
     @GetMapping("/result")
-    public Map<String, Object> result(@RequestParam long sessionId) {
+    public Map<String, Object> result(@RequestParam long sessionId, HttpSession session) {
         try {
-            Map<String, Object> r = mod.result(sessionId);
+            Map<String, Object> r = mod.result(sessionId,
+                    com.sahinh.io.vn.core.security.AuthUtil.currentUserId(session),
+                    com.sahinh.io.vn.core.security.AuthUtil.currentRole(session));
             if (r == null) {
                 return ApiResponse.error(404, "NOT_FOUND");
             }

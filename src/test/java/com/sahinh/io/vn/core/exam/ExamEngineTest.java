@@ -61,6 +61,37 @@ class ExamEngineTest {
     }
 
     @Test
+    void overtimeDeductIsOnePer3SecondsOver18Minutes() {
+        assertEquals(0, ExamEngine.overtimeDeduct(1080));
+        assertEquals(0, ExamEngine.overtimeDeduct(1079));
+        assertEquals(1, ExamEngine.overtimeDeduct(1083));
+        assertEquals(2, ExamEngine.overtimeDeduct(1086));
+        assertEquals(40, ExamEngine.overtimeDeduct(1200));
+        assertEquals(0, ExamEngine.overtimeDeduct(0));
+    }
+
+    @Test
+    void autoTransmissionSkipsLesson9() {
+        List<Map<String, Object>> lessons = List.of(
+                Map.of("ID", 8L, "LESSON_NO", 8, "NAME", "Đường sắt",
+                        "ANNOUNCE_TEXT", "Bài thi đường sắt", "DURATION_SECONDS", 15),
+                Map.of("ID", 9L, "LESSON_NO", 9, "NAME", "Thay đổi số",
+                        "ANNOUNCE_TEXT", "Bài thi thay đổi số", "DURATION_SECONDS", 120),
+                Map.of("ID", 10L, "LESSON_NO", 10, "NAME", "Ghép ngang",
+                        "ANNOUNCE_TEXT", "Bài thi ghép ngang", "DURATION_SECONDS", 120));
+        List<ExamEngine.PlanItem> auto = ExamEngine.buildPlan(lessons, Map.of(), false, false, "AUTO");
+        assertEquals(2, auto.size());
+        assertTrue(auto.stream().noneMatch(i -> i.lessonNo() == 9));
+        assertEquals(8, auto.get(0).lessonNo());
+        assertEquals(10, auto.get(1).lessonNo());
+        // Số sàn giữ nguyên bài 9.
+        List<ExamEngine.PlanItem> manual = ExamEngine.buildPlan(lessons, Map.of(), false, false, "MANUAL");
+        assertEquals(3, manual.size());
+        // Mặc định (không truyền hộp số) cũng là số sàn.
+        assertEquals(3, ExamEngine.buildPlan(lessons, Map.of(), false, false).size());
+    }
+
+    @Test
     void buildPlanFallsBackToLessonWhenStepsDisabled() {
         List<Map<String, Object>> lessons = List.of(
                 Map.of("ID", 1L, "LESSON_NO", 1, "NAME", "Xuất phát",

@@ -61,8 +61,13 @@ không tự chọn. Không tự gộp Luồng 2 và Luồng 3.
 
 ## 3. Trạng thái hiện tại theo feature
 
-> S01–S06 đã DONE ngày 2026-11-23 (xem §10). Cập nhật bảng này sau mỗi
+> S01–S07 đã DONE ngày 2026-11-23 (xem §10). Cập nhật bảng này sau mỗi
 > session, append session mới ở §10, không xóa lịch sử.
+>
+> S07: Số tự động — chọn ở màn hình bắt đầu 3 luồng thi, bỏ bài 9 khi
+> chọn Số tự động, lưu vào `SH_SESSION.TRANSMISSION` (V4). Tình huống
+> nguy hiểm — toggle theo preset, mặc định TẮT, chỉ Luồng 2/3, chậm thì
+> trừ 10 điểm (lỗi `DANGEROUS`).
 
 | System | Feature | Function | Progress | Status | Đã hoàn thành | Next task |
 |---|---|---|---|---:|---|---|---|
@@ -71,12 +76,12 @@ không tự chọn. Không tự gộp Luồng 2 và Luồng 3.
 | Management | `MS` | `MSA0_0100` | 100% | `DONE` | S01–S06 | S01: Dashboard đơn giản (số phiên thi, tỉ lệ đậu) |
 | Management | `MS` | `MSA0_0200` | 100% | `DONE` | S01–S06 | S01: User/role/quyền, menu động từ DB |
 | Sa hình | `SH` | `SHA0_0100` | 100% | `DONE` | S01–S06 | S02: Cấu hình 11 bài + ~23 bước nhỏ (bảng dưới) |
-| Sa hình | `SH` | `SHA0_0200` | 100% | `DONE` | S01–S06 | S02: Cấu hình lỗi, điểm trừ, cờ liệt |
-| Sa hình | `SH` | `SHA0_0300` | 100% | `DONE` | S01–S06 | S02: Preset Superadmin + nút Áp dụng / Tự setup riêng |
-| Sa hình | `SH` | `SHA0_0400` | 100% | `DONE` | S01–S06 | S03: Thi Luồng 1 — Tự động |
-| Sa hình | `SH` | `SHA0_0500` | 100% | `DONE` | S01–S06 | S04: Thi Luồng 2 — Bấm chay chi tiết |
-| Sa hình | `SH` | `SHA0_0600` | 100% | `DONE` | S01–S06 | S05: Thi Luồng 3 — Bấm chay thi thật |
-| Sa hình | `SH` | `SHA0_0700` | 100% | `DONE` | S01–S06 | S06: Kết quả & Lịch sử phiên thi |
+| Sa hình | `SH` | `SHA0_0200` | 100% | `DONE` | S01–S07 | S02: Cấu hình lỗi, điểm trừ, cờ liệt |
+| Sa hình | `SH` | `SHA0_0300` | 100% | `DONE` | S01–S07 | S02: Preset Superadmin + nút Áp dụng / Tự setup riêng |
+| Sa hình | `SH` | `SHA0_0400` | 100% | `DONE` | S01–S07 | S03: Thi Luồng 1 — Tự động |
+| Sa hình | `SH` | `SHA0_0500` | 100% | `DONE` | S01–S07 | S04: Thi Luồng 2 — Bấm chay chi tiết |
+| Sa hình | `SH` | `SHA0_0600` | 100% | `DONE` | S01–S07 | S05: Thi Luồng 3 — Bấm chay thi thật |
+| Sa hình | `SH` | `SHA0_0700` | 100% | `DONE` | S01–S07 | S06: Kết quả & Lịch sử phiên thi |
 
 ### 3.1. 11 bài thi chuẩn và giờ chuẩn (dùng làm mặc định)
 
@@ -193,9 +198,10 @@ Migration bắt đầu từ V1 của app này:
 
 | Migration | Nội dung | Trạng thái |
 |---|---|---|
-| `V1__create_foundation_auth.sql` | `SYS_USER`, `SYS_ROLE`, `SYS_ROLE_USER`, `SYS_FUNCTION`, `SYS_ROLE_FUNCTION`, `SYS_FUNCTION_PAGE`, seed SUPERADMIN/TEACHER | TODO — S01 |
-| `V2__create_exam_config.sql` | `SH_PRESET`, `SH_LESSON`, `SH_STEP`, `SH_ERROR_RULE`, seed 11 bài + ~23 bước + bảng lỗi §3.4 | TODO — S02 |
-| `V3__create_exam_session.sql` | `SH_SESSION`, `SH_SESSION_LOG`, lưu phiên thi + log từng bước/bài + điểm | TODO — S03/S06 |
+| `V1__create_foundation_auth.sql` | `SYS_USER`, `SYS_ROLE`, `SYS_ROLE_USER`, `SYS_FUNCTION`, `SYS_ROLE_FUNCTION`, `SYS_FUNCTION_PAGE`, seed SUPERADMIN/TEACHER | DONE — S01 |
+| `V2__create_exam_config.sql` | `SH_PRESET`, `SH_LESSON`, `SH_STEP`, `SH_ERROR_RULE`, seed 11 bài + ~23 bước + bảng lỗi §3.4 | DONE — S02 |
+| `V3__create_exam_session.sql` | `SH_SESSION`, `SH_SESSION_LOG`, lưu phiên thi + log từng bước/bài + điểm | DONE — S03/S06 |
+| `V4__add_transmission_and_dangerous.sql` | `SH_SESSION.TRANSMISSION`, `SH_PRESET.DANGEROUS_ENABLED` + `DANGEROUS_TIMEOUT_SECONDS`, seed lỗi `DANGEROUS` (-10, không liệt) | DONE (code) — S07, chưa chạy migrate thật trên MySQL |
 
 Bảng chính (tên cột gợi ý, chốt trong PROJECT_INDEX.md ở S01):
 
@@ -216,8 +222,8 @@ Không tạo migration mới nếu không có thay đổi schema thực sự.
 |---|---|---|
 | Medium | Âm thanh trình duyệt | SpeechSynthesis giọng vi-VN khác nhau theo trình duyệt/máy; phải có nút Tắt tiếng + fallback chỉ hiện chữ nếu không đọc được. |
 | Medium | Đếm giờ chính xác | Đếm giờ ở frontend chỉ để hiển thị; quyết định hết giờ / trừ điểm phải khớp với server (mod). Không để frontend tự quyết điểm. |
-| Low | Xe số tự động không thi bài 9 | Khi chọn xe số tự động thì bỏ bài 9 khỏi luồng, ghi rõ trong cấu hình preset. Chưa chốt ở S01 thì để TODO. |
-| Low | Tình huống nguy hiểm ngẫu nhiên | Luật thi thật có tình huống nguy hiểm bất ngờ (-10 nếu xử lý chậm). Chưa làm ở MVP, để phase mở rộng sau S07. |
+| Low | Xe số tự động không thi bài 9 | **DONE — S07**: chọn hộp số ở màn hình bắt đầu 3 luồng, Số tự động bỏ bài 9 khỏi plan (cùng 1 engine nên nhất quán), lưu `SH_SESSION.TRANSMISSION` (V4). Mặc định Số sàn. |
+| Low | Tình huống nguy hiểm ngẫu nhiên | **DONE — S07**: toggle theo preset, mặc định TẮT, chỉ Luồng 2/3, điểm ngẫu nhiên giữa bài thi, chậm thì -10 (lỗi `DANGEROUS` seed ở V4, không liệt). |
 
 ---
 
@@ -313,3 +319,29 @@ Không tạo migration mới nếu không có thay đổi schema thực sự.
     `docker compose up --build`, chạy app thật + MySQL + login + chạy tay
     3 luồng (`mvn`/`docker`/`mysql` không có sẵn trong sandbox, Maven qua
     proxy lỗi TLS). Cần máy dev chạy tiếp theo lệnh ở §8 của ROADMAP.
+
+### S07 — 2026-11-23 — Audit S01–S06 + Polish + Số tự động + Tình huống nguy hiểm
+
+- Audit (đọc toàn bộ `*_mod.java`, `*_trx.java`, `exam.js`, `app.js`,
+  `app.css`, 10 template, `ExamEngine`/`ExamService`, `PermissionFilter`,
+  SQL V1–V3): tìm ra 12 điểm, trong đó 6 phải sửa (A1, A2, A3, A4, A8,
+  A9), 6 đúng/không phải lỗi (A5, A6, A7, A10, A11, A12). Chi tiết ở
+  `docs/features/SH/report/report_session_07.md`.
+- Sửa: (1) phiên đã RỚT liệt không bị `/finish` ghi đè thành TRƯỢT/0,
+  finish gọi 2 lần trả đúng trạng thái đã lưu; (2) chặn IDOR — chỉ chủ
+  phiên hoặc SUPERADMIN được log/finish/xem kết quả (kết quả không có
+  quyền trả 404); (3) quá 18 phút trừ -1/3 giây ở server (Luồng 2/3,
+  ghi log `OVERTIME`); (4) SHA0_0200 tạo + xóa lỗi (qua quyền preset);
+  (5) `PermissionFilter` chặn mặc định (API 403, trang về `/login`);
+  (6) CSS mobile: bảng cuộn ngang, nút big full-width ở 480px.
+- Số tự động: chọn ở màn hình bắt đầu 3 luồng, bỏ bài 9 khỏi plan khi
+  Số tự động, lưu `SH_SESSION.TRANSMISSION` (V4, mặc định `MANUAL`).
+- Tình huống nguy hiểm: toggle theo preset (mặc định TẮT), chỉ Luồng
+  2/3, điểm ngẫu nhiên giữa bài thi, đèn đỏ + loa, bấm kịp không trừ,
+  chậm -10 qua lỗi `DANGEROUS` (seed V4). Clone/tạo preset copy cả cờ.
+- Verify trong sandbox (đã chạy thật): `javac` main + test exit 0;
+  `ExamEngineTest` **8/8 PASS** (thêm test quá giờ + Số tự động bỏ bài
+  9); `node --check` app.js + exam.js OK; V4 ngoặc cân bằng, 16 câu;
+  V1–V3 không sửa. CHƯA verify live (giống S01–S06): `mvn test`,
+  `docker compose up --build`, app thật + MySQL + chạy tay 3 luồng +
+  migrate V4 thật — cần máy dev, xem checklist ở cuối report S07 §F.

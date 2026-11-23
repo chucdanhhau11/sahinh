@@ -14,8 +14,8 @@ public class SHA0_0700_mod {
         this.registry = registry;
     }
 
-    public Map<String, Object> result(long sessionId) {
-        return new com.sahinh.io.vn.core.exam.ExamService(registry).resultOf(sessionId);
+    public Map<String, Object> result(long sessionId, Long userId, String role) {
+        return new com.sahinh.io.vn.core.exam.ExamService(registry).resultOf(sessionId, userId, role);
     }
 
     public List<Map<String, Object>> history(long userId, String role) {

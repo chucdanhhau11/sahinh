@@ -59,6 +59,24 @@ public class SHA0_0300_trx {
         }
     }
 
+    @PostMapping("/dangerous")
+    public Map<String, Object> setDangerous(@RequestBody Map<String, Object> body, HttpSession session) {
+        try {
+            mod.setDangerous(
+                    ((Number) body.get("presetId")).longValue(),
+                    Boolean.TRUE.equals(body.get("enabled")),
+                    body.get("timeoutSeconds") == null ? null
+                            : ((Number) body.get("timeoutSeconds")).intValue(),
+                    com.sahinh.io.vn.core.security.AuthUtil.currentUserId(session),
+                    com.sahinh.io.vn.core.security.AuthUtil.currentRole(session));
+            return ApiResponse.ok("SUCCESS", null);
+        } catch (IllegalArgumentException e) {
+            return ApiResponse.error(400, e.getMessage());
+        } catch (Exception e) {
+            return ApiResponse.error(500, e.getMessage());
+        }
+    }
+
     @PostMapping("/create")
     public Map<String, Object> create(@RequestBody Map<String, Object> body, HttpSession session) {
         try {

@@ -23,7 +23,10 @@ async function loadPresets() {
     return '<div class="row" style="margin-bottom:10px"><b>' + p.NAME + '</b>'
       + '<span class="muted">chủ: ' + (p.OWNER_NAME || '') + (p.IS_TEMPLATE === 1 ? ' (mẫu)' : ' (bản riêng)') + '</span>'
       + '<button onclick="applyPreset(' + p.ID + ')">Áp dụng</button>'
-      + '<button class="secondary" onclick="clonePreset(' + p.ID + ')">Tự setup riêng</button></div>';
+      + '<button class="secondary" onclick="clonePreset(' + p.ID + ')">Tự setup riêng</button>'
+      + '<label><input type="checkbox" style="width:auto" id="dg-' + p.ID + '"' + (p.DANGEROUS_ENABLED === 1 ? ' checked' : '') + '> Tình huống nguy hiểm</label>'
+      + '<input style="width:70px" type="number" value="' + (p.DANGEROUS_TIMEOUT_SECONDS || 5) + '" id="dgs-' + p.ID + '"> giây'
+      + '<button class="secondary" onclick="saveDangerous(' + p.ID + ')">Lưu</button></div>';
   }).join('');
 }
 async function applyPreset(id) { const r = await api('/api/SH/A0/SHA0_0300/apply', { method: 'POST', body: JSON.stringify({ presetId: id }) }); toast(r.message); }
@@ -31,6 +34,12 @@ async function clonePreset(id) {
   const name = prompt('Tên bản riêng của bạn:', '');
   const r = await api('/api/SH/A0/SHA0_0300/clone', { method: 'POST', body: JSON.stringify({ presetId: id, name: name }) });
   toast(r.message + (r.data ? ' (id=' + r.data.id + ')' : '')); loadPresets();
+}
+async function saveDangerous(id) {
+  const r = await api('/api/SH/A0/SHA0_0300/dangerous', { method: 'POST', body: JSON.stringify({
+    presetId: id, enabled: document.getElementById('dg-' + id).checked,
+    timeoutSeconds: Number(document.getElementById('dgs-' + id).value) }) });
+  toast(r.message);
 }
 async function createPreset() {
   const r = await api('/api/SH/A0/SHA0_0300/create', { method: 'POST', body: JSON.stringify({ name: document.getElementById('new-name').value }) });

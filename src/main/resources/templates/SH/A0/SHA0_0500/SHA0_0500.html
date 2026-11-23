@@ -15,6 +15,7 @@
 <div class="card" id="setup-box">
   <label>Preset đang áp dụng</label><select id="preset"></select>
   <label>Tên học viên</label><input id="student-name" placeholder="Nhập tên học viên">
+  <label>Hộp số</label><select id="transmission"><option value="MANUAL">Số sàn</option><option value="AUTO">Số tự động (bỏ bài 9)</option></select>
   <div style="height:12px"></div>
   <button class="big" onclick="startExam(2, Number(document.getElementById('preset').value))">Bắt đầu</button>
 </div>
@@ -34,6 +35,12 @@
     <button class="big danger" onclick="openErrors()">- Sai (chọn lỗi)</button>
     <button class="big secondary" onclick="nextItem()">Qua bài</button>
   </div>
+</div>
+<div id="hazard-overlay" style="display:none;text-align:center;margin-top:12px;border:3px solid #c0392b;border-radius:12px;padding:16px;background:#fdf0ef">
+  <div class="danger-light"></div>
+  <h2 style="color:#c0392b">TÌNH HUỐNG NGUY HIỂM</h2>
+  <p>Bấm nút bên dưới trong <b><span id="hazard-count">5</span> giây</b> để bật đèn báo nguy hiểm, nếu không sẽ bị trừ 10 điểm.</p>
+  <button class="big danger" onclick="pressHazard()">Bật đèn báo nguy hiểm</button>
 </div>
 <div class="card" id="result-box" style="display:none">
   <div id="result-text" class="result-pass"></div>

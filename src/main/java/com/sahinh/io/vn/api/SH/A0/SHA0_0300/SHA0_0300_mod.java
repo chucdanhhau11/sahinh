@@ -59,6 +59,25 @@ public class SHA0_0300_mod {
         return newId;
     }
 
+    /**
+     * S07-D: bật/tắt tình huống nguy hiểm của 1 preset (mặc định TẮT).
+     * Chỉ Superadmin hoặc chủ bản riêng được sửa.
+     */
+    public void setDangerous(long presetId, boolean enabled, Integer timeoutSeconds,
+                             long userId, String role) {
+        com.sahinh.io.vn.api.SH.A0.SHA0_0100.SHA0_0100_mod cfg =
+                new com.sahinh.io.vn.api.SH.A0.SHA0_0100.SHA0_0100_mod(registry);
+        if (!cfg.canEditPreset(presetId, userId, role)) {
+            throw new IllegalArgumentException(
+                    "Preset mẫu của Superadmin không được sửa trực tiếp — hãy bấm Tự setup riêng");
+        }
+        int secs = timeoutSeconds == null || timeoutSeconds.intValue() < 1 ? 5
+                : timeoutSeconds.intValue();
+        registry.get("sahinh").update(
+                "UPDATE SH_PRESET SET DANGEROUS_ENABLED=?, DANGEROUS_TIMEOUT_SECONDS=? WHERE ID=?",
+                enabled ? 1 : 0, secs, presetId);
+    }
+
     /** Superadmin tạo preset mới: copy nội dung từ preset mẫu id=1. */
     public long createPreset(String name, long userId) {
         long newId = registry.get("sahinh").insertAndGetId(
@@ -70,6 +89,23 @@ public class SHA0_0300_mod {
     }
 
     private void copyPresetContent(long sourcePresetId, long targetPresetId) {
+        // Copy cả cờ tình huống nguy hiểm (V4). DB chưa migrate thì bỏ qua.
+        try {
+            Map<String, Object> sp = registry.get("sahinh").findOne(
+                    "SELECT DANGEROUS_ENABLED, DANGEROUS_TIMEOUT_SECONDS FROM SH_PRESET WHERE ID=?",
+                    sourcePresetId);
+            if (sp != null) {
+                registry.get("sahinh").update(
+                        "UPDATE SH_PRESET SET DANGEROUS_ENABLED=?, DANGEROUS_TIMEOUT_SECONDS=? WHERE ID=?",
+                        sp.get("DANGEROUS_ENABLED") == null ? 0
+                                : ((Number) sp.get("DANGEROUS_ENABLED")).intValue(),
+                        sp.get("DANGEROUS_TIMEOUT_SECONDS") == null ? 5
+                                : ((Number) sp.get("DANGEROUS_TIMEOUT_SECONDS")).intValue(),
+                        targetPresetId);
+            }
+        } catch (Exception ignored) {
+            // Cột V4 chưa có: preset copy vẫn dùng được, mặc định TẮT.
+        }
         List<Map<String, Object>> lessons = registry.get("sahinh").searchAndRetrieve(
                 "SELECT * FROM SH_LESSON WHERE PRESET_ID=? ORDER BY SORT_ORDER", sourcePresetId);
         for (Map<String, Object> l : lessons) {

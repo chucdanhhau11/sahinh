@@ -7,6 +7,9 @@
 (function () {
   let plan = null, idx = 0, timer = null, remaining = 0, sessionId = null;
   let score = 100, muted = false, audioCtx = null, flow = 1, presetId = 1;
+  let transmission = 'MANUAL';
+  // Tình huống nguy hiểm (S07-D): chỉ Luồng 2/3, chỉ khi preset bật (mặc định TẮT).
+  let hazardIdx = -1, hazardDone = false, hazardTimer = null, hazardLeft = 0;
   function flowBase(f) { return '/api/SH/A0/' + ['SHA0_0400', 'SHA0_0500', 'SHA0_0600'][f - 1]; }
 
   function el(id) { return document.getElementById(id); }
@@ -43,6 +46,12 @@
     speak(it.announce);
     beep();
     clearInterval(timer);
+    // Tình huống nguy hiểm: tới đúng bước/bài đã chọn thì dừng đồng hồ,
+    // hiện đèn đỏ + đọc loa, chờ thầy bấm nút nguy hiểm.
+    if (flow !== 1 && plan.dangerousEnabled && idx === hazardIdx && !hazardDone) {
+      triggerHazard();
+      return;
+    }
     timer = setInterval(function () {
       remaining--;
       renderTimer();
@@ -61,8 +70,38 @@
     t.textContent = Math.max(0, remaining);
     t.classList.toggle('low', remaining <= 5);
   }
+  function triggerHazard() {
+    const ov = el('hazard-overlay');
+    if (!ov) { hazardDone = true; show(); return; }
+    hazardLeft = plan.dangerousTimeoutSeconds || 5;
+    el('hazard-count').textContent = hazardLeft;
+    ov.style.display = 'block';
+    speak('Tình huống nguy hiểm');
+    beep();
+    clearInterval(hazardTimer);
+    hazardTimer = setInterval(function () {
+      hazardLeft--;
+      el('hazard-count').textContent = Math.max(0, hazardLeft);
+      if (hazardLeft <= 0) {
+        clearInterval(hazardTimer);
+        hazardDone = true;
+        ov.style.display = 'none';
+        // Hết giờ không bấm nút: trừ 10 điểm theo lỗi DANGEROUS đã seed.
+        if (plan.dangerousErrorRuleId) { applyError(plan.dangerousErrorRuleId); }
+        else { show(); }
+      }
+    }, 1000);
+  }
+  window.pressHazard = function () {
+    clearInterval(hazardTimer);
+    hazardDone = true;
+    const ov = el('hazard-overlay');
+    if (ov) ov.style.display = 'none';
+    show(); // Bấm kịp: không trừ điểm, chạy lại đồng hồ của bài/bước hiện tại.
+  };
   async function finish(failed, failedStep, failedReason) {
     clearInterval(timer);
+    clearInterval(hazardTimer);
     if (!sessionId) return;
     const r = await api(flowBase(flow) + '/finish', {
       method: 'POST', body: JSON.stringify({ sessionId: sessionId, failed: failed, failedStep: failedStep, failedReason: failedReason })
@@ -92,13 +131,19 @@
   window.startExam = async function (f, preset) {
     flow = f; presetId = preset;
     const studentName = (el('student-name') || {}).value || '';
+    transmission = (el('transmission') || {}).value || 'MANUAL';
     const base = flowBase(f);
-    const p = await api(base + '/plan?presetId=' + presetId);
+    const p = await api(base + '/plan?presetId=' + presetId + '&transmission=' + transmission);
     if (p.code !== 200) { toast(p.message || 'Không tải được kế hoạch thi'); return; }
     plan = p.data;
-    const s = await api(base + '/start', { method: 'POST', body: JSON.stringify({ presetId: presetId, studentName: studentName }) });
+    const s = await api(base + '/start', { method: 'POST', body: JSON.stringify({ presetId: presetId, studentName: studentName, transmission: transmission }) });
     if (s.code !== 200) { toast(s.message || 'Không tạo được phiên thi'); return; }
     sessionId = s.data.sessionId; score = 100; idx = 0;
+    // Tình huống nguy hiểm: chọn ngẫu nhiên 1 điểm giữa bài thi (Luồng 2/3, khi preset bật).
+    hazardDone = false; hazardIdx = -1;
+    if (flow !== 1 && plan.dangerousEnabled && plan.items.length >= 5) {
+      hazardIdx = 2 + Math.floor(Math.random() * (plan.items.length - 4));
+    }
     el('setup-box').style.display = 'none';
     el('exam-box').style.display = 'block';
     el('flow1-only').style.display = flow === 1 ? 'block' : 'none';

@@ -20,6 +20,24 @@ import java.util.Map;
 public class ExamEngine {
     public static final int START_SCORE = 100;
     public static final int PASS_SCORE = 80;
+    /** Tổng thời gian chuẩn 18 phút = 1080 giây. Chỉ áp cho Luồng 2/3. */
+    public static final int TOTAL_LIMIT_SECONDS = 1080;
+
+    /**
+     * Quá tổng thời gian: cứ 3 giây trừ 1 điểm (Luồng 2/3, server-side).
+     * elapsedSeconds <= 1080 -> 0. Luồng 1 KHÔNG áp dụng (giây chỉnh tự do).
+     */
+    public static int overtimeDeduct(long elapsedSeconds) {
+        if (elapsedSeconds <= TOTAL_LIMIT_SECONDS) {
+            return 0;
+        }
+        return (int) ((elapsedSeconds - TOTAL_LIMIT_SECONDS) / 3);
+    }
+
+    /** Số tự động thì bỏ bài 9 (Thay đổi số trên đường bằng). Mặc định số sàn. */
+    public static boolean isAutoTransmission(String transmission) {
+        return "AUTO".equalsIgnoreCase(transmission);
+    }
 
     /** Một mục trong kế hoạch thi: 1 bước nhỏ (Flow 1/2) hoặc 1 bài (Flow 3). */
     public record PlanItem(int lessonNo, Integer stepNo, String name, String announce,
@@ -42,9 +60,24 @@ public class ExamEngine {
     public static List<PlanItem> buildPlan(List<Map<String, Object>> lessons,
                                            Map<Long, List<Map<String, Object>>> stepsByLesson,
                                            boolean detailedEnabled, boolean useSteps) {
+        return buildPlan(lessons, stepsByLesson, detailedEnabled, useSteps, "MANUAL");
+    }
+
+    /**
+     * Như buildPlan 4 tham số, thêm hộp số: transmission="AUTO" thì bỏ
+     * bài 9 khỏi kế hoạch (plan, tiến trình, chấm điểm đều bỏ nhất quán).
+     */
+    public static List<PlanItem> buildPlan(List<Map<String, Object>> lessons,
+                                           Map<Long, List<Map<String, Object>>> stepsByLesson,
+                                           boolean detailedEnabled, boolean useSteps,
+                                           String transmission) {
         List<PlanItem> plan = new ArrayList<>();
+        boolean auto = isAutoTransmission(transmission);
         for (Map<String, Object> l : lessons) {
             int lessonNo = ((Number) l.get("LESSON_NO")).intValue();
+            if (auto && lessonNo == 9) {
+                continue; // Số tự động không thi bài 9.
+            }
             long lessonId = ((Number) l.get("ID")).longValue();
             String name = String.valueOf(l.get("NAME"));
             String announce = String.valueOf(l.get("ANNOUNCE_TEXT"));

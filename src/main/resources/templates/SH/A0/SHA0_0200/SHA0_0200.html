@@ -13,6 +13,7 @@
 <h1>Cấu hình Lỗi &amp; Điểm liệt</h1>
 <p class="muted">Sửa điểm trừ và tick Liệt cho từng lỗi. Lỗi liệt: thầy bấm - vào lỗi đó thì dừng thi ngay, hiện RỚT. Ví dụ đã chốt: “Tắt máy trên dốc” là liệt.</p>
 <div class="card"><label>Preset <select id="preset" style="width:260px"></select></label></div>
+<div class="card"><h2>Thêm lỗi mới</h2><div class="row"><input id="new-name" placeholder="Tên lỗi" style="flex:2"><input id="new-lesson" type="number" value="0" style="width:90px" title="0 = chung"> bài (0 = chung)<input id="new-deduct" type="number" value="5" style="width:90px"> điểm<label><input type="checkbox" style="width:auto" id="new-liet"> Liệt</label><button onclick="createError()">Thêm lỗi</button></div></div>
 <div class="card"><div id="errors">Đang tải...</div></div>
 <script>
 let presetId = 1;
@@ -31,8 +32,21 @@ async function loadErrors() {
       return '<tr><td>' + (e.LESSON_NO === 0 ? 'Chung' : e.LESSON_NO) + '</td><td>' + e.NAME + '</td>'
         + '<td><input style="width:80px" type="number" value="' + (e.DEDUCT_POINTS || 0) + '" id="de-' + e.ID + '"></td>'
         + '<td><input type="checkbox" style="width:auto" id="li-' + e.ID + '"' + (e.IS_LIET === 1 ? ' checked' : '') + '></td>'
-        + '<td><button onclick="saveError(' + e.ID + ')">Lưu</button></td></tr>';
+        + '<td><button onclick="saveError(' + e.ID + ')">Lưu</button> <button class="danger" onclick="deleteError(' + e.ID + ')">Xóa</button></td></tr>';
     }).join('') + '</table>';
+}
+async function createError() {
+  const r = await api('/api/SH/A0/SHA0_0200/error/create', { method: 'POST', body: JSON.stringify({
+    presetId: presetId, lessonNo: Number(document.getElementById('new-lesson').value),
+    name: document.getElementById('new-name').value,
+    deduct: Number(document.getElementById('new-deduct').value),
+    isLiet: document.getElementById('new-liet').checked ? 1 : 0 }) });
+  toast(r.message); loadErrors();
+}
+async function deleteError(id) {
+  if (!confirm('Xóa lỗi này?')) return;
+  const r = await api('/api/SH/A0/SHA0_0200/error/delete', { method: 'POST', body: JSON.stringify({ id: id }) });
+  toast(r.message); loadErrors();
 }
 async function saveError(id) {
   const r = await api('/api/SH/A0/SHA0_0200/error', { method: 'POST', body: JSON.stringify({

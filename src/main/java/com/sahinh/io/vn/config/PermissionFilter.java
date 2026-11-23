@@ -80,7 +80,10 @@ public class PermissionFilter implements Filter {
                 }
             }
             if (functionId == null) {
-                chain.doFilter(req, res);
+                // S07-A8: fail-closed. Đường dẫn lạ, không có trong
+                // SYS_FUNCTION_PAGE và không phải API đã biết -> chặn,
+                // không cho qua như trước.
+                forbid(request, response, path);
                 return;
             }
             List<Map<String, Object>> rows = ds.searchAndRetrieve(
@@ -107,6 +110,18 @@ public class PermissionFilter implements Filter {
             return;
         }
         chain.doFilter(req, res);
+    }
+
+    /** Đã đăng nhập nhưng đường dẫn không có quyền / không tồn tại: 403. */
+    private void forbid(HttpServletRequest request, HttpServletResponse response, String path)
+            throws IOException {
+        if (path.startsWith("/api/")) {
+            response.setStatus(403);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"code\":403,\"message\":\"FORBIDDEN\",\"data\":null}");
+        } else {
+            response.sendRedirect("/login");
+        }
     }
 
     private void deny(HttpServletRequest request, HttpServletResponse response, String path)

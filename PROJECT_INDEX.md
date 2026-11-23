@@ -29,7 +29,7 @@
 | Thymeleaf template | `src/main/resources/templates/<SYSTEM>/<SUBSYSTEM>/<FUNCTION>/` | Mỗi function có template. |
 | UI chung | `src/main/resources/static/css/app.css`, `static/js/app.js`, `static/js/exam.js` | `app.js`: session/menu động; `exam.js`: đồng hồ, loa SpeechSynthesis vi-VN, bíp Web Audio, nút Mute, logic 3 luồng (điểm do server tính). |
 | Cấu hình | `src/main/resources/application.yml` | File YAML duy nhất. Datasource/Flyway qua env `DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD`. |
-| Migration | `src/main/resources/db/migration/` | V1 foundation/auth, V2 preset/bài/bước/lỗi + seed, V3 phiên thi/log. |
+| Migration | `src/main/resources/db/migration/` | V1 foundation/auth, V2 preset/bài/bước/lỗi + seed, V3 phiên thi/log, V4 hộp số + tình huống nguy hiểm (S07). |
 
 ## 3. Danh mục module
 
@@ -39,12 +39,12 @@
 | `MS` | `A0` | `MSA0_0100` | Dashboard (số phiên, tỉ lệ đậu, phiên gần đây) | DONE — S01 |
 | `MS` | `A0` | `MSA0_0200` | Người dùng, role, menu động từ DB | DONE — S01 |
 | `SH` | `A0` | `SHA0_0100` | Cấu hình Bài & Bước nhỏ (lời loa, giây, bật/tắt) | DONE — S02 |
-| `SH` | `A0` | `SHA0_0200` | Cấu hình Lỗi & Điểm liệt | DONE — S02 |
-| `SH` | `A0` | `SHA0_0300` | Preset: Áp dụng / Tự setup riêng (copy) / Tạo mới | DONE — S02 |
-| `SH` | `A0` | `SHA0_0400` | Thi Luồng 1 — Tự động | DONE — S03 |
-| `SH` | `A0` | `SHA0_0500` | Thi Luồng 2 — Bấm chay chi tiết | DONE — S04 |
-| `SH` | `A0` | `SHA0_0600` | Thi Luồng 3 — Bấm chay thi thật | DONE — S05 |
-| `SH` | `A0` | `SHA0_0700` | Kết quả & Lịch sử phiên thi | DONE — S06 |
+| `SH` | `A0` | `SHA0_0200` | Cấu hình Lỗi & Điểm liệt (S07: thêm tạo + xóa lỗi) | DONE — S02, S07 |
+| `SH` | `A0` | `SHA0_0300` | Preset: Áp dụng / Tự setup riêng (copy) / Tạo mới (S07: toggle tình huống nguy hiểm) | DONE — S02, S07 |
+| `SH` | `A0` | `SHA0_0400` | Thi Luồng 1 — Tự động (S07: chọn hộp số, kiểm tra quyền phiên) | DONE — S03, S07 |
+| `SH` | `A0` | `SHA0_0500` | Thi Luồng 2 — Bấm chay chi tiết (S07: chọn hộp số, kiểm tra quyền phiên, quá 18 phút trừ điểm server) | DONE — S04, S07 |
+| `SH` | `A0` | `SHA0_0600` | Thi Luồng 3 — Bấm chay thi thật (S07: như Luồng 2) | DONE — S05, S07 |
+| `SH` | `A0` | `SHA0_0700` | Kết quả & Lịch sử phiên thi (S07: kết quả kiểm tra quyền phiên) | DONE — S06, S07 |
 
 ## 4. URL trang theo mã function
 
@@ -65,6 +65,7 @@ API theo convention `/api/{SYSTEM_CODE}/{SUBSYSTEM_CODE}/{FUNCTION_CODE}/...`.
 | Migration V1 | `db/migration/V1__create_foundation_auth.sql` | `SYS_USER/SYS_ROLE/SYS_ROLE_USER/SYS_FUNCTION/SYS_FUNCTION_PAGE/SYS_ROLE_FUNCTION`; seed admin/teacher/student (BCrypt). |
 | Migration V2 | `db/migration/V2__create_exam_config.sql` | `SH_PRESET/SH_LESSON/SH_STEP/SH_ERROR_RULE`; seed preset "Chuẩn thi thật", 11 bài, 23 bước, 24 lỗi (trong đó "Tắt máy trên dốc" IS_LIET=1). |
 | Migration V3 | `db/migration/V3__create_exam_session.sql` | `SH_SESSION/SH_SESSION_LOG`. |
+| Migration V4 | `db/migration/V4__add_transmission_and_dangerous.sql` | `SH_SESSION.TRANSMISSION` (AUTO/MANUAL, mặc định MANUAL); `SH_PRESET.DANGEROUS_ENABLED` + `DANGEROUS_TIMEOUT_SECONDS` (mặc định TẮT/5s); seed lỗi `DANGEROUS` -10, không liệt. Idempotent, không sửa V1–V3. |
 
 ## 6. Lệnh vận hành
 
