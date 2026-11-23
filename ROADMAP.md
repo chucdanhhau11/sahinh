@@ -383,6 +383,30 @@ Không tạo migration mới nếu không có thay đổi schema thực sự.
 - Verify sau fix (trình duyệt thật): login, dashboard stats, cấu hình bài,
   preset, Luồng 2 Bắt đầu / bấm + / chọn lỗi trừ 5 điểm (100 -> 95) đều
   PASS, 0 dialog, 0 pageerror. `/start` 200, history có phiên RUNNING.
+
+### S10 — 2026-11-23 — Âm thanh thi giống loa sân sát hạch, mp3 thu sẵn (report_session_10)
+
+- User hỏi âm thanh app có giống y hệt loa thi thật không — trả lời thật là
+  KHÔNG (giọng máy SpeechSynthesis + bíp 880 Hz tự tạo). User bảo thử cách
+  tách tiếng loa từ video YouTube.
+- Đã tải + nhận dạng toàn bộ 2 video full 11 bài (whisper-small, 31 phút):
+  cả 2 đều là thầy giảng suốt, không có tiếng loa sạch để cắt; 2 video chip
+  cũ đã không xem được. Phân tích phổ cũng không tìm được nốt bíp sạch.
+- Phương án thay thế: giọng nữ đọc thu sẵn 11 câu thông báo + "Dừng xe nguy
+  hiểm" + chuông "tính tong" 2 nốt, lưu ở `static/audio/` (lesson-01…
+  lesson-11, dangerous, beep). `exam.js` phát mp3 trước, lỗi/mất file thì
+  về giọng máy cũ; bước chi tiết vẫn giọng máy. `/audio/` thêm vào
+  `isPublic` của PermissionFilter (lúc đầu thiếu nên bị 302 về /login).
+- Verify live (H2): 13 file mp3 đều HTTP 200; trình duyệt thật chạy Luồng 3
+  — Bắt đầu đọc "Bài thi xuất phát", + Đúng qua Bài 2/3 đọc đúng file
+  lesson-02/03; 0 page error. Lỗi console 401 `menu` ở trang login là có
+  từ trước (S09), không do S10.
+- Bổ sung trước push: kiểm chứng được loa thi thật đọc "Bài thi tiếp theo,
+  bài thi <tên>" (2 nguồn độc lập) nên tạo lại lesson-02…11 có tiền tố đó;
+  thêm result-pass.mp3 ("Chúc mừng bạn đã thi đạt…") phát khi ĐẠT; chạy lại
+  đủ Luồng 3: ĐẠT 100/100, đủ 13 file audio theo thứ tự.
+- Muốn giống y hệt loa thi thật: user ghi âm tiếng loa ở sân thi/xe chip
+  rồi thay file cùng tên, không cần sửa code.
 - Còn phải kiểm chứng trên máy dev (MySQL thật + V4 thật): login sau
   `docker compose up --build`, chạy hết 3 luồng, số tự động bỏ bài 9,
   tình huống nguy hiểm, quá 18 phút trừ điểm Luồng 2/3.

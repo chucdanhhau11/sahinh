@@ -565,3 +565,21 @@ Giữ nguyên triad pg/trx/mod, DataSetRegistry, menu/quyền động từ DB.
 Khác DriveMaster ở: 3 luồng thi đã chốt, preset Superadmin + nút Áp dụng,
 điểm liệt cấu hình được, âm thanh bằng SpeechSynthesis + Web Audio,
 không có S3, không có chat, không có CMS trang chủ.
+
+# PHỤ LỤC — 2026-11-23 (S10: âm thanh mp3)
+
+Âm thanh thi đổi từ "chỉ SpeechSynthesis + Web Audio, không mp3" sang:
+mp3 thu sẵn phát trước, SpeechSynthesis làm fallback. File ở
+`src/main/resources/static/audio/`: lesson-01…lesson-11.mp3 (đúng 11 câu
+ANNOUNCE_TEXT trong V2 — riêng lesson-02…11 đọc thêm tiền tố "Bài thi tiếp
+theo," như loa thi thật), dangerous.mp3 ("Dừng xe nguy hiểm"), beep.mp3
+(chuông 2 nốt 1175 Hz → 880 Hz, kiểu "tính tong"), result-pass.mp3 ("Chúc
+mừng bạn đã thi đạt phần thi thực hành lái xe trong hình", phát khi ĐẠT).
+`exam.js` map câu chuẩn → file; câu không có trong map (bước chi tiết, câu
+tùy chỉnh) vẫn dùng giọng máy. `/audio/` là public trong PermissionFilter
+như `/css/`, `/js/`.
+Lý do đổi: user yêu cầu nghe giống loa sân sát hạch; đã thử tách tiếng loa
+thật từ 2 video YouTube full 11 bài (nhận dạng bằng whisper-small) nhưng cả
+2 đều là thầy giảng suốt, không có tiếng loa sạch. File mp3 hiện tại là
+giọng nữ đọc thu sẵn (TTS), KHÔNG phải giọng loa thi thật — khi nào có file
+ghi âm loa thật thì thay cùng tên file, không sửa code.

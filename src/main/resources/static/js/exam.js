@@ -13,18 +13,57 @@
   function flowBase(f) { return '/api/SH/A0/' + ['SHA0_0400', 'SHA0_0500', 'SHA0_0600'][f - 1]; }
 
   function el(id) { return document.getElementById(id); }
-  function speak(text) {
-    const a = el('announce'); if (a) a.textContent = text || '';
-    if (muted || !text || !('speechSynthesis' in window)) return;
+  // Âm thanh thi (S10): file mp3 giọng nữ thu sẵn cho 11 bài + tình huống
+  // nguy hiểm (static/audio/). Loa thi thật đọc "Bài thi tiếp theo, bài thi
+  // <tên>" khi chuyển bài (bài 1 không có "tiếp theo"), nên lesson-02…11 có
+  // tiền tố đó trong file, còn chữ hiện trên màn hình vẫn là tên bài.
+  // Không khớp (bước chi tiết, câu tùy chỉnh) -> giọng máy speechSynthesis
+  // như cũ. File lỗi/mất -> cũng về giọng máy.
+  const AUDIO_MAP = {
+    'Bài thi xuất phát': 'lesson-01.mp3',
+    'Bài thi dừng xe nhường đường cho người đi bộ': 'lesson-02.mp3',
+    'Bài thi dừng xe và khởi hành ngang dốc': 'lesson-03.mp3',
+    'Bài thi qua vệt bánh xe và đường hẹp vuông góc': 'lesson-04.mp3',
+    'Bài thi qua ngã tư có đèn tín hiệu': 'lesson-05.mp3',
+    'Bài thi đường vòng quanh co': 'lesson-06.mp3',
+    'Bài thi ghép xe dọc vào nơi đỗ': 'lesson-07.mp3',
+    'Bài thi tạm dừng ở chỗ có đường sắt chạy qua': 'lesson-08.mp3',
+    'Bài thi thay đổi số trên đường bằng': 'lesson-09.mp3',
+    'Bài thi ghép xe ngang vào nơi đỗ': 'lesson-10.mp3',
+    'Bài thi kết thúc': 'lesson-11.mp3',
+    'Tình huống nguy hiểm': 'dangerous.mp3'
+  };
+  let currentAudio = null;
+  function stopAudio() {
+    if (currentAudio) { try { currentAudio.pause(); } catch (e) {} currentAudio = null; }
+    if (window.speechSynthesis) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+  }
+  function playFile(file, fallback) {
     try {
-      window.speechSynthesis.cancel();
+      const a = new Audio('/audio/' + file);
+      currentAudio = a;
+      a.onerror = function () { currentAudio = null; if (fallback) fallback(); };
+      const p = a.play();
+      if (p && p.catch) p.catch(function () { currentAudio = null; if (fallback) fallback(); });
+    } catch (e) { currentAudio = null; if (fallback) fallback(); }
+  }
+  function speakTts(text) {
+    if (!('speechSynthesis' in window)) return;
+    try {
       const u = new SpeechSynthesisUtterance(text);
       u.lang = 'vi-VN';
       window.speechSynthesis.speak(u);
     } catch (e) { /* chỉ hiện chữ */ }
   }
-  function beep() {
-    if (muted) return;
+  function speak(text) {
+    const a = el('announce'); if (a) a.textContent = text || '';
+    if (muted || !text) return;
+    const file = AUDIO_MAP[text];
+    stopAudio();
+    if (file) { playFile(file, function () { speakTts(text); }); return; }
+    speakTts(text);
+  }
+  function beepOsc() {
     try {
       audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
       const o = audioCtx.createOscillator(), g = audioCtx.createGain();
@@ -32,6 +71,10 @@
       o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
       o.stop(audioCtx.currentTime + 0.15);
     } catch (e) { /* không có audio */ }
+  }
+  function beep() {
+    if (muted) return;
+    playFile('beep.mp3', beepOsc);
   }
   function show() {
     if (!plan) return;
@@ -114,6 +157,8 @@
     el('result-score').textContent = 'Điểm: ' + d.score + ' / 100';
     el('result-reason').textContent = d.failedReason || '';
     el('result-link').href = '/SH/SHA0_0700?sessionId=' + sessionId;
+    // S10: đỗ -> loa chúc mừng như sân thi thật ("Chúc mừng bạn đã thi đạt...").
+    if (d.passed && !muted) playFile('result-pass.mp3');
   }
   async function logCurrent(errorRuleId) {
     const it = plan.items[idx];
@@ -181,7 +226,7 @@
   window.toggleMute = function () {
     muted = !muted;
     const b = el('mute-btn'); if (b) b.textContent = muted ? 'Bật loa' : 'Tắt loa';
-    if (muted && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+    if (muted) stopAudio();
   };
   window.restartExam = function () { window.location.reload(); };
 })();

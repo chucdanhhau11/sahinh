@@ -37,7 +37,8 @@ public class PermissionFilter implements Filter {
     private boolean isPublic(String path) {
         return "/".equals(path) || "/login".equals(path) || "/error".equals(path)
                 || path.startsWith("/css/") || path.startsWith("/js/")
-                || path.startsWith("/images/") || "/favicon.ico".equals(path)
+                || path.startsWith("/images/") || path.startsWith("/audio/")
+                || "/favicon.ico".equals(path)
                 || path.startsWith("/actuator/health")
                 || path.equals("/api/ZZ/A0/ZZA0_0001/login")
                 // S08: /session phải qua được Filter để trx trả JSON {code:401}
