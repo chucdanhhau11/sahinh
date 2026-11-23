@@ -14,7 +14,23 @@ async function api(path, opts) {
   }
   return r.json();
 }
-function toast(msg) { alert(msg); }
+// S09: toast KHONG dung alert() nua — alert() la modal chan ca trang
+// (dong ho thi cung dung lai, thay phai bam OK moi tiep tuc duoc).
+// Toast div tu hien 4 giay roi tu an, khong chan thao tac.
+function toast(msg) {
+  if (!document.body) { alert(msg); return; }
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 16px;border-radius:8px;z-index:9999;max-width:90vw;box-shadow:0 4px 16px rgba(0,0,0,.25);font-size:14px';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(t._h);
+  t._h = setTimeout(function () { t.style.display = 'none'; }, 4000);
+}
 async function loadSession() {
   try {
     const r = await api('/api/ZZ/A0/ZZA0_0001/session', { noRedirect: true });

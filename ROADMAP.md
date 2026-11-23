@@ -363,3 +363,26 @@ Không tạo migration mới nếu không có thay đổi schema thực sự.
 - CHƯA verify live: sandbox không có Docker/MySQL, bước cài MariaDB bằng
   `apt` đã bị user từ chối nên không start được app thật ở đây. Cần chạy
   lại `docker compose up --build` trên máy dev và đăng nhập thử.
+
+### S09 — 2026-11-23 — Chạy live trong sandbox, xác minh login + fix 2 lỗi mới (report_session_09)
+
+- User: vẫn lỗi login, yêu cầu tự start chạy test bên trong cho mượt rồi báo.
+  Đọc lại skills + roadmap trước khi làm.
+- Sandbox chặn mọi TCP từ tiến trình Java (kể cả đổi cổng, đổi tên tiến trình,
+  Unix socket đều không qua). Chạy live được bằng H2 in-memory MODE=MySQL +
+  classpath đúng pom (86 jar) + `javac -parameters` + V4 viết lại bằng H2
+  (chỉ trong /tmp, không commit).
+- Xác minh S08 ĐÚNG bằng trình duyệt thật: trang login chỉ load 1 lần trong
+  8 giây, `/session` trả JSON 401 với HTTP 200, login admin/admin123 vào
+  Dashboard, menu động từ DB. Nếu máy dev vẫn lỗi thì chưa pull/build lại.
+- Lỗi mới 1: cả 10 template đặt `app.js`/`exam.js` ở cuối body, SAU khối
+  inline gọi `api()` -> `ReferenceError`, mọi trang kẹt "Đang tải...".
+  Fix: chuyển 2 thẻ script lên `<head>` cả 10 template.
+- Lỗi mới 2: `toast()` = `alert()` chặn cả trang khi API lỗi. Fix: toast div
+  không chặn, tự ẩn sau 4 giây.
+- Verify sau fix (trình duyệt thật): login, dashboard stats, cấu hình bài,
+  preset, Luồng 2 Bắt đầu / bấm + / chọn lỗi trừ 5 điểm (100 -> 95) đều
+  PASS, 0 dialog, 0 pageerror. `/start` 200, history có phiên RUNNING.
+- Còn phải kiểm chứng trên máy dev (MySQL thật + V4 thật): login sau
+  `docker compose up --build`, chạy hết 3 luồng, số tự động bỏ bài 9,
+  tình huống nguy hiểm, quá 18 phút trừ điểm Luồng 2/3.
