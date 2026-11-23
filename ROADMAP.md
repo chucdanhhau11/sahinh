@@ -405,6 +405,10 @@ Không tạo migration mới nếu không có thay đổi schema thực sự.
   bài thi <tên>" (2 nguồn độc lập) nên tạo lại lesson-02…11 có tiền tố đó;
   thêm result-pass.mp3 ("Chúc mừng bạn đã thi đạt…") phát khi ĐẠT; chạy lại
   đủ Luồng 3: ĐẠT 100/100, đủ 13 file audio theo thứ tự.
+- S10b (sau khi user báo pull về vẫn y như cũ): Luồng 1/2 toàn bước chi tiết
+  không có trong AUDIO_MAP nên chưa bao giờ nghe được mp3; thêm
+  `announceItem()` — bước đầu tiên của mỗi bài phát mp3 của bài đó, các bước
+  sau giữ giọng máy. Test Luồng 2: lesson-01…04 phát đúng ranh giới bài.
 - Muốn giống y hệt loa thi thật: user ghi âm tiếng loa ở sân thi/xe chip
   rồi thay file cùng tên, không cần sửa code.
 - Còn phải kiểm chứng trên máy dev (MySQL thật + V4 thật): login sau

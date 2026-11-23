@@ -34,6 +34,9 @@
     'Tình huống nguy hiểm': 'dangerous.mp3'
   };
   let currentAudio = null;
+  // File mp3 theo số bài (khớp LESSON_NO trong V2). Dùng khi bước chi tiết
+  // không có câu riêng trong AUDIO_MAP mà vừa sang bài mới.
+  const LESSON_AUDIO = { 1: 'lesson-01.mp3', 2: 'lesson-02.mp3', 3: 'lesson-03.mp3', 4: 'lesson-04.mp3', 5: 'lesson-05.mp3', 6: 'lesson-06.mp3', 7: 'lesson-07.mp3', 8: 'lesson-08.mp3', 9: 'lesson-09.mp3', 10: 'lesson-10.mp3', 11: 'lesson-11.mp3' };
   function stopAudio() {
     if (currentAudio) { try { currentAudio.pause(); } catch (e) {} currentAudio = null; }
     if (window.speechSynthesis) { try { window.speechSynthesis.cancel(); } catch (e) {} }
@@ -54,6 +57,24 @@
       u.lang = 'vi-VN';
       window.speechSynthesis.speak(u);
     } catch (e) { /* chỉ hiện chữ */ }
+  }
+  // Đọc loa cho bước/bài hiện tại (S10b).
+  // - Câu chuẩn trong AUDIO_MAP -> phát mp3 (Luồng 3, hoặc bước trùng tên bài).
+  // - Bước chi tiết: vừa sang bài mới -> phát mp3 của bài đó (như thi thật,
+  //   loa chỉ đọc tên bài khi vào bài); các bước sau trong cùng bài -> giọng
+  //   máy đọc tên bước như cũ. Trước S10b, Luồng 1/2 toàn là bước chi tiết
+  //   nên không bao giờ nghe được mp3 mới.
+  function announceItem() {
+    const it = plan.items[idx];
+    if (AUDIO_MAP[it.announce]) { speak(it.announce); return; }
+    const prev = idx > 0 ? plan.items[idx - 1] : null;
+    if ((!prev || prev.lessonNo !== it.lessonNo) && LESSON_AUDIO[it.lessonNo] && !muted) {
+      const a = el('announce'); if (a) a.textContent = it.announce || '';
+      stopAudio();
+      playFile(LESSON_AUDIO[it.lessonNo], function () { speakTts(it.announce); });
+      return;
+    }
+    speak(it.announce);
   }
   function speak(text) {
     const a = el('announce'); if (a) a.textContent = text || '';
@@ -86,7 +107,7 @@
     el('progress-text').textContent = (idx + 1) + ' / ' + plan.items.length;
     remaining = it.durationSeconds;
     renderTimer();
-    speak(it.announce);
+    announceItem();
     beep();
     clearInterval(timer);
     // Tình huống nguy hiểm: tới đúng bước/bài đã chọn thì dừng đồng hồ,

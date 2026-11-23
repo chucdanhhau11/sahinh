@@ -92,6 +92,30 @@ thì chỉ cần thay file cùng tên là xong, không sửa code.
 
 ## G. Còn lại (máy dev)
 
+## H. S10b — sửa sau khi user báo "pull về vẫn y như cũ" (23:25)
+
+- **Nguyên nhân thật:** 2 khả năng đều cho đúng triệu chứng này — (1) user
+  chạy `docker compose up` mà quên `--build` nên JAR cũ vẫn chạy (file mp3
+  không có trong JAR cũ, `playFile` lỗi -> lặng lẽ về giọng máy); (2) S10
+  chỉ phát mp3 cho câu trong `AUDIO_MAP` — Luồng 1/2 toàn bước chi tiết
+  ("Thắt dây an toàn", "Qua vệt bánh xe"...) không có trong map nên toàn
+  bộ vẫn giọng máy, chỉ Luồng 3 nghe được mp3 mới. Dockerfile đã đúng
+  (`COPY src` + `mvn package`, không có .dockerignore loại mp3) nên chỉ
+  cần rebuild là file vào JAR.
+- **Sửa (exam.js, `announceItem()`):** bước chi tiết vừa sang bài mới thì
+  phát mp3 của bài đó (map `LESSON_AUDIO` theo số bài, khớp V2); các bước
+  sau trong cùng bài giữ giọng máy đọc tên bước như cũ. Luồng 3 không đổi.
+- **Test Luồng 2 (23 bước):** Bắt đầu (Bài 1 bước 1) -> lesson-01.mp3;
+  bước 2-3 Bài 1 không phát thêm; bước 1 Bài 2 -> lesson-02.mp3; bước 1
+  Bài 3 -> lesson-03.mp3, bước 2 không phát thêm; bước 1 Bài 4 ->
+  lesson-04.mp3, bước 2-3 không phát thêm. 0 page error (vẫn chỉ 401 menu
+  ở trang login như mục D).
+- **Hướng dẫn user kiểm tra trên máy dev:** `git pull` rồi
+  `docker compose up --build` (bắt buộc có `--build`, không thì JAR cũ);
+  mở http://localhost:8080/audio/lesson-02.mp3 trên trình duyệt — nghe được
+  là bản mới đã lên; hard-refresh trang thi (Ctrl+Shift+R) nếu trình duyệt
+  cache exam.js cũ.
+
 - `git pull` rồi `docker compose up --build`, mở Luồng 3 nghe thử tiếng loa.
   File mp3 nằm trong repo nên máy dev có sẵn, không cần tải thêm.
 - Muốn giống y hệt loa thi thật: ghi âm tiếng loa ở sân thi hoặc xe chip
