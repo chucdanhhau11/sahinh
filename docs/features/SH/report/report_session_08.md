@@ -66,3 +66,24 @@ docker compose up --build
 ```
 
 Kiểm tra thêm: hết phiên ở trang thi thì vẫn bị đẩy về `/login` (T3).
+
+## F. Cập nhật sau S08 (23/11, user bảo start thử bằng Java)
+
+User hỏi sao lại dùng node trong khi app dùng Java — làm rõ: node CHỈ dùng
+để `node --check` + mô phỏng logic file `app.js` (JavaScript trình duyệt),
+app vẫn chạy bằng Java (javac + `java -cp ... SaHinhApplication`).
+
+Đã thử start app thật bằng Java trong sandbox sau khi user bấm cho phép
+cài MariaDB: MariaDB 10.11 chạy được, `mysql` CLI (cả socket lẫn TCP)
+kết nối bình thường, nhưng app Java chết ở Flyway với lỗi
+`Packet for query is too large (7,566,701 > 65,535)`. Truy vết tới cùng:
+kết nối TCP thô bằng Java tới 127.0.0.1:3306 nhận về chuỗi
+`muse: Database connections is turned off for this assistant. To ...`
+(trong khi Python nối cùng cổng nhận đúng handshake MariaDB). Tức
+**sandbox chặn kết nối DB từ tiến trình Java của assistant** — mọi driver
+(MySQL Connector/J 8.3.0, MariaDB Connector/J 3.3.3) đều đọc nhầm 3 byte
+đầu `mus` thành độ dài gói 7.566.701. Đây là giới hạn của sandbox, không
+phải lỗi code/app: trên máy dev chạy Docker (MySQL 8 thật) app đã lên tới
+trang login như ảnh user gửi. Không cài MySQL/MariaDB trong sandbox nữa
+để chạy app — chỉ verify bằng javac + test + mô phỏng JS, chạy live để
+máy dev làm.
