@@ -583,3 +583,17 @@ thật từ 2 video YouTube full 11 bài (nhận dạng bằng whisper-small) nh
 2 đều là thầy giảng suốt, không có tiếng loa sạch. File mp3 hiện tại là
 giọng nữ đọc thu sẵn (TTS), KHÔNG phải giọng loa thi thật — khi nào có file
 ghi âm loa thật thì thay cùng tên file, không sửa code.
+
+# PHỤ LỤC — 2026-11-24 (S11: loa thi THẬT từ TikTok)
+
+10/14 file mp3 nay là bản thu thật tách từ video TikTok
+@chidinh_daylaixe 7532639865452776711 (full 11 bài, sân Củ Chi, 18:24):
+lesson-01 ("Bắt đầu thi"), lesson-02, 03, 04, 05, 07, 09, 10, 11 và
+beep.mp3 (chuông thật 875 Hz → 734 Hz). Giữ giọng TTS Aria: lesson-06,
+lesson-08 (video không có câu loa 2 bài này), dangerous.mp3 (còi báo thật
+có ở 714.5 s nhưng câu "Dừng xe nguy hiểm" không tách sạch — thầy nói đè),
+result-pass.mp3 (cuối video chỉ còn jingle quảng cáo). lesson-10 bị cắt
+ngắn ở "…vào nơi" (thiếu "đỗ", thầy nói đè từ 804.4 s) — nhờ user nghe
+đánh giá, khó nghe thì quay lại file TTS cho bài 10. Nguồn tách: nhận dạng
+whisper-small toàn bộ video + xác minh giọng loa bằng F0 (193–213 Hz so
+với thầy nam 125–126 Hz); chi tiết mốc cắt ở report_session_11.md.

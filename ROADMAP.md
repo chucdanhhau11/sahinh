@@ -409,6 +409,17 @@ Không tạo migration mới nếu không có thay đổi schema thực sự.
   không có trong AUDIO_MAP nên chưa bao giờ nghe được mp3; thêm
   `announceItem()` — bước đầu tiên của mỗi bài phát mp3 của bài đó, các bước
   sau giữ giọng máy. Test Luồng 2: lesson-01…04 phát đúng ranh giới bài.
+- S11 (24/11, user giao tách tiếng loa từ video TikTok
+  @chidinh_daylaixe 7532639865452776711, full 11 bài sân Củ Chi): nhận dạng
+  toàn bộ 18:24 bằng whisper-small, xác minh loa nữ thật bằng F0 (193–213 Hz
+  so với thầy nam 125–126 Hz). Thay 10 file bằng bản thu thật:
+  lesson-01 ("Bắt đầu thi"), 02, 03, 04, 05, 07, 09, 10, 11 + beep (chuông
+  thật đo được 875→734 Hz, khác chuông tổng hợp S10 1175→880 Hz). Giữ TTS:
+  lesson-06, lesson-08 (không có câu loa trong video), dangerous (còi báo
+  @714.5 s có thật nhưng câu "Dừng xe nguy hiểm" không tách sạch được),
+  result-pass (cuối video chỉ còn jingle quảng cáo). lesson-10 bị cắt ngắn
+  ở "…vào nơi" (thiếu "đỗ" vì thầy nói đè từ 804.4 s). Test Luồng 3:
+  ĐẠT 100/100, đủ 13 file audio theo thứ tự. Chi tiết: report_session_11.md.
 - Muốn giống y hệt loa thi thật: user ghi âm tiếng loa ở sân thi/xe chip
   rồi thay file cùng tên, không cần sửa code.
 - Còn phải kiểm chứng trên máy dev (MySQL thật + V4 thật): login sau
