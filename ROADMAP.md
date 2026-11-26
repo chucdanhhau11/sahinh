@@ -460,3 +460,14 @@ Không tạo migration mới nếu không có thay đổi schema thực sự.
   report_session_12.md. Còn phải kiểm chứng trên máy dev (MySQL
   thật + V5 thật): màn hình cấu hình hiện 14 mục / 39 lỗi, chạy hết
   3 luồng, nghe thử ranh giới bài 10 Luồng 2 phải đọc lesson-08.
+- S13 (26/11, user gửi voice note 90s đọc đủ 14 câu loa, chốt thay hết):
+  cắt chính xác thành 11 file lesson-01…11 + 3 bản ngã tư dự phòng,
+  chuẩn hoá âm lượng khớp app. Giọng nữ F0 ~275 Hz, khác loa TikTok
+  S11 (~200 Hz), trong file có jingle "Ghiền Mì Gõ" (đã loại). Kiểm tra
+  lại bằng whisper-medium đối chiếu từng từ: khớp hẳn 02/06/11; lệch
+  từ thật ở 01 ("Bắt đầu"), 05 ("tín hiệu điều khiển giao thông"),
+  08 ("dừng xe chỗ có…"), 09 ("thẳng" cả 3 lần đọc, chưa kết luận
+  được là người đọc nói sai hay máy nghe nhầm). Thay file, test live
+  H2: Luồng 3 14 mục ĐẠT 100/100, đủ 11 file mới theo thứ tự. Chi tiết:
+  report_session_13.md. Còn phải kiểm chứng trên máy dev: nghe thử
+  3 luồng bằng giọng mới, nhất là lesson-01/05/08/09.
