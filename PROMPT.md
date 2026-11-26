@@ -25,7 +25,7 @@ không có camera.
 Đọc theo thứ tự bắt buộc trước khi code, không được bỏ bước:
 1. `skills/#SAHINH-B2—SKILLS.txt` — luật tối cao, không được xóa/đổi.
 2. `PROJECT_INDEX.md` — bản đồ mã nguồn (tạo ở S01 nếu chưa có).
-3. `ROADMAP.md` — trạng thái project, 11 bài, bảng lỗi, kế hoạch S01–S07.
+3. `ROADMAP.md` — trạng thái project, 14 mục, bảng lỗi, kế hoạch S01–S12.
 4. `docs/features/<FEATURE>/<FEATURE>.md` + `report/` mới nhất.
 5. `src/main/resources/db/migration/` + source của đúng function đang làm.
 
@@ -58,7 +58,7 @@ lịch sử), cập nhật `PROJECT_INDEX.md`, tạo report
 - CẤM hardcode điểm trừ, điểm liệt, giờ thi trong code Java/JS.
   Tất cả phải đọc từ DB (`SH_ERROR_RULE`, `SH_STEP`, `SH_LESSON`).
 - CẤM tự đổi định nghĩa 3 luồng thi ở §4. CẤM gộp Luồng 2 và Luồng 3.
-- CẤM tự thêm / bớt / đổi thứ tự 11 bài thi.
+- CẤM tự thêm / bớt / đổi thứ tự 14 mục thi.
 - Nếu convention Java thông thường xung đột với Skills thì ưu tiên Skills.
 
 ### 2.2. Kiến trúc module — triad bắt buộc
@@ -94,7 +94,9 @@ URL:
 Dùng bảng này làm dữ liệu seed mặc định. Sau này thầy/superadmin có
 thể sửa trong cấu hình, nhưng code không được hardcode nó.
 
-- Tổng: 11 bài liên hoàn, tổng thời gian chuẩn **18 phút (1080 giây)**.
+- Tổng: 14 mục liên hoàn (11 bài + 3 lần qua ngã tư xen giữa — xe qua
+  ngã tư 4 lần trong sân, mỗi lần chấm riêng), tổng thời gian chuẩn
+  **18 phút (1080 giây)**.
 - Bắt đầu **100 điểm**, đạt khi còn **từ 80 điểm** trở lên.
 - Chấm tự động bằng cảm biến ở thi thật; ở app này thầy chấm tay.
 - Tốc độ trong sân tối đa **24 km/h** (trừ bài thay đổi số).
@@ -107,30 +109,38 @@ thể sửa trong cấu hình, nhưng code không được hardcode nó.
 - Từ 01/07/2026: phải đỗ lý thuyết mới được thi sa hình, đỗ sa hình
   mới được thi đường trường. App này không cần kiểm tra lý thuyết.
 
-### 3.1. 11 bài thi chuẩn — thứ tự cố định
+### 3.1. 14 mục thi chuẩn — thứ tự cố định
 
-| Bài | Tên bài | Giờ chuẩn | Lời loa mặc định |
+| Mục | Tên mục | Giờ chuẩn | Lời loa mặc định |
 |---:|---|---|---|
 | 1 | Xuất phát | 20 giây để qua vạch | Bài thi xuất phát |
 | 2 | Dừng xe nhường đường cho người đi bộ | dừng 1 lần | Bài thi dừng xe nhường đường cho người đi bộ |
 | 3 | Dừng xe và khởi hành ngang dốc | 30 giây để qua dốc | Bài thi dừng xe và khởi hành ngang dốc |
 | 4 | Qua vệt bánh xe và đường hẹp vuông góc | 2 phút | Bài thi qua vệt bánh xe và đường hẹp vuông góc |
-| 5 | Qua ngã tư có đèn tín hiệu điều khiển giao thông | 20 giây khi đèn xanh | Bài thi qua ngã tư có đèn tín hiệu |
+| 5 | Qua ngã tư (1) | 20 giây khi đèn xanh | Bài thi qua ngã tư có đèn tín hiệu |
 | 6 | Đường vòng quanh co (chữ S) | 2 phút | Bài thi đường vòng quanh co |
-| 7 | Ghép xe dọc vào nơi đỗ | 2 phút | Bài thi ghép xe dọc vào nơi đỗ |
-| 8 | Tạm dừng ở chỗ có đường sắt chạy qua | dừng 1 lần | Bài thi tạm dừng ở chỗ có đường sắt chạy qua |
-| 9 | Thay đổi số trên đường bằng | 2 phút | Bài thi thay đổi số trên đường bằng |
-| 10 | Ghép xe ngang vào nơi đỗ | 2 phút | Bài thi ghép xe ngang vào nơi đỗ |
-| 11 | Kết thúc | — | Bài thi kết thúc |
+| 7 | Qua ngã tư (2) | 20 giây khi đèn xanh | Bài thi qua ngã tư có đèn tín hiệu |
+| 8 | Ghép xe dọc vào nơi đỗ | 2 phút | Bài thi ghép xe dọc vào nơi đỗ |
+| 9 | Qua ngã tư (3) | 20 giây khi đèn xanh | Bài thi qua ngã tư có đèn tín hiệu |
+| 10 | Tạm dừng ở chỗ có đường sắt chạy qua | dừng 1 lần | Bài thi tạm dừng ở chỗ có đường sắt chạy qua |
+| 11 | Thay đổi số trên đường bằng | 2 phút | Bài thi thay đổi số trên đường bằng |
+| 12 | Ghép xe ngang vào nơi đỗ | 2 phút | Bài thi ghép xe ngang vào nơi đỗ |
+| 13 | Qua ngã tư (4) | 20 giây khi đèn xanh | Bài thi qua ngã tư có đèn tín hiệu |
+| 14 | Kết thúc | — | Bài thi kết thúc |
 
-Bài 9: xe số tự động không thi. Khi chọn xe số tự động thì bỏ bài 9.
+Bài 11: xe số tự động không thi. Khi chọn xe số tự động thì bỏ bài 11.
 
-### 3.2. ~23 bước nhỏ mặc định (chỉ dùng cho Luồng 1 và 2)
+> S12 (26/11): trước đây gộp 4 lần qua ngã tư thành 1 bài nên chỉ có
+> 11 bài; user gửi ảnh màn hình CÀI ĐẶT CHỨC NĂNG chính thức (14 mục,
+> mỗi ngã tư: quá 20 giây -5đ, quá 30 giây loại trực tiếp) nên tách ra
+> thành 14 mục, LESSON_NO = số thứ tự chính thức (V5).
 
-Đây là danh sách seed. Admin chỉ sửa số giây / bật-tắt, không cần
-tự tạo mới. Khi tách thêm bước căn gương / trả lái thì tổng lên ~23.
+### 3.2. 29 bước nhỏ mặc định (chỉ dùng cho Luồng 1 và 2)
 
-| Bài | Bước nhỏ | Lời loa khi bật | Giây mặc định |
+Đây là danh sách seed (khớp V2 + V5). Admin chỉ sửa số giây / bật-tắt,
+không cần tự tạo mới. 3 ngã tư (2)/(3)/(4) có cùng 2 bước như ngã tư (1).
+
+| Mục | Bước nhỏ | Lời loa khi bật | Giây mặc định |
 |---|---|---|---:|
 | 1 | 1.1 Thắt dây an toàn | Thắt dây an toàn | 10 |
 | 1 | 1.2 Bật xi nhan trái và xuất phát | Bật xi nhan trái, xuất phát | 20 |
@@ -138,16 +148,29 @@ tự tạo mới. Khi tách thêm bước căn gương / trả lái thì tổng 
 | 2 | 2.1 Dừng đúng vạch người đi bộ | Dừng xe nhường đường cho người đi bộ | 15 |
 | 3 | 3.1 Dừng đúng vạch trên dốc | Dừng xe trên dốc | 15 |
 | 3 | 3.2 Khởi hành qua dốc | Khởi hành qua dốc | 30 |
-| 4 | 4.1 Qua vệt bánh xe | Qua vệt bánh xe | 60 |
-| 4 | 4.2 Qua đường hẹp vuông góc | Qua đường hẹp vuông góc | 60 |
-| 5 | 5.1 Qua ngã tư có đèn | Qua ngã tư có đèn tín hiệu | 20 |
-| 6 | 6.1 Qua đường vòng quanh co | Qua đường vòng quanh co | 120 |
-| 7 | 7.1 Ghép xe dọc vào nơi đỗ | Ghép xe dọc vào nơi đỗ | 120 |
-| 8 | 8.1 Dừng đúng vạch đường sắt | Dừng xe ở chỗ có đường sắt chạy qua | 15 |
-| 9 | 9.1 Tăng số trên đường bằng | Tăng số trên đường bằng | 60 |
-| 9 | 9.2 Giảm số trên đường bằng | Giảm số trên đường bằng | 60 |
-| 10 | 10.1 Ghép xe ngang vào nơi đỗ | Ghép xe ngang vào nơi đỗ | 120 |
-| 11 | 11.1 Bật xi nhan phải và kết thúc | Bật xi nhan phải, kết thúc | 10 |
+| 4 | 4.1 Bánh trước qua vệt bánh xe | Qua vệt bánh xe | 60 |
+| 4 | 4.2 Bánh sau qua vệt bánh xe | Qua vệt bánh xe | 30 |
+| 4 | 4.3 Qua đường hẹp vuông góc | Qua đường hẹp vuông góc | 30 |
+| 5 | 5.1 Dừng / đi theo đèn tín hiệu | Qua ngã tư có đèn tín hiệu | 20 |
+| 5 | 5.2 Rẽ qua ngã tư | Qua ngã tư có đèn tín hiệu | 20 |
+| 6 | 6.1 Vào đường vòng quanh co | Qua đường vòng quanh co | 60 |
+| 6 | 6.2 Ra đường vòng quanh co | Qua đường vòng quanh co | 60 |
+| 7 | 7.1 Dừng / đi theo đèn tín hiệu | Qua ngã tư có đèn tín hiệu | 20 |
+| 7 | 7.2 Rẽ qua ngã tư | Qua ngã tư có đèn tín hiệu | 20 |
+| 8 | 8.1 Đưa xe vào miệng chuồng dọc | Ghép xe dọc vào nơi đỗ | 40 |
+| 8 | 8.2 Lùi xe vào chuồng dọc | Ghép xe dọc vào nơi đỗ | 40 |
+| 8 | 8.3 Chỉnh thẳng xe và ra khỏi chuồng | Ghép xe dọc vào nơi đỗ | 40 |
+| 9 | 9.1 Dừng / đi theo đèn tín hiệu | Qua ngã tư có đèn tín hiệu | 20 |
+| 9 | 9.2 Rẽ qua ngã tư | Qua ngã tư có đèn tín hiệu | 20 |
+| 10 | 10.1 Dừng đúng vạch đường sắt | Dừng xe ở chỗ có đường sắt chạy qua | 15 |
+| 11 | 11.1 Tăng số trên đường bằng | Tăng số trên đường bằng | 60 |
+| 11 | 11.2 Giảm số trên đường bằng | Giảm số trên đường bằng | 60 |
+| 12 | 12.1 Tiến xe song song ô đỗ ngang | Ghép xe ngang vào nơi đỗ | 40 |
+| 12 | 12.2 Lùi chéo vào ô đỗ ngang | Ghép xe ngang vào nơi đỗ | 40 |
+| 12 | 12.3 Trả lái thẳng xe trong ô | Ghép xe ngang vào nơi đỗ | 40 |
+| 13 | 13.1 Dừng / đi theo đèn tín hiệu | Qua ngã tư có đèn tín hiệu | 20 |
+| 13 | 13.2 Rẽ qua ngã tư | Qua ngã tư có đèn tín hiệu | 20 |
+| 14 | 14.1 Bật xi nhan phải và kết thúc | Bật xi nhan phải, kết thúc | 10 |
 
 ### 3.3. Bảng lỗi mặc định — cấu hình được
 
@@ -171,14 +194,16 @@ Mỗi lỗi có: `CODE`, `NAME`, `DEDUCT_POINTS`, `IS_LIET (0/1)`.
 | Quá 30s chưa qua dốc | — | 1 | 3 |
 | **Tắt máy trên dốc** | — | **1 — user chốt, khác luật thật (-5)** | **3** |
 | Chết máy (bài khác) | 5/lần | 0 | Chung |
-| Bánh xe đè vạch | 5/lần | 0 | 4, 6, 7, 10 |
+| Bánh xe đè vạch | 5/lần | 0 | 4, 6, 8, 12 |
 | Bánh xe ra ngoài hình bài | — | 1 | 4, 6 |
-| Vượt đèn đỏ | 10 | 0 | 5 |
-| Không bật xi nhan khi rẽ | 5 | 0 | 5 |
-| Quá 2 phút (bài 4/6/7/9/10) | 5 | 0 | 4, 6, 7, 9, 10 |
-| Hết giờ ghép xe mà chưa vào hẳn ô | — | 1 | 7, 10 |
-| Không tăng / không giảm số đúng | 5 | 0 | 9 |
-| Không bật xi nhan phải lúc kết thúc | 5 | 0 | 11 |
+| Vượt đèn đỏ | 10 | 0 | 5, 7, 9, 13 |
+| Không bật xi nhan khi rẽ | 5 | 0 | 5, 7, 9, 13 |
+| Quá 20 giây chưa qua ngã tư | 5 | 0 | 5, 7, 9, 13 |
+| Quá 30 giây chưa qua ngã tư | — | 1 | 5, 7, 9, 13 |
+| Quá 2 phút (bài 4/6/8/11/12) | 5 | 0 | 4, 6, 8, 11, 12 |
+| Hết giờ ghép xe mà chưa vào hẳn ô | — | 1 | 8, 12 |
+| Không tăng / không giảm số đúng | 5 | 0 | 11 |
+| Không bật xi nhan phải lúc kết thúc | 5 | 0 | 14 |
 | Lái xe lên vỉa hè / gây tai nạn | — | 1 | Chung |
 | Quá tổng thời gian 18 phút | 1 / 3 giây | 0 | Chung (Luồng 2/3) |
 
@@ -191,7 +216,7 @@ Mỗi lỗi có: `CODE`, `NAME`, `DEDUCT_POINTS`, `IS_LIET (0/1)`.
 - Thầy chỉ bấm **Bắt đầu 1 lần duy nhất**.
 - Sau đó hệ thống **TỰ** đếm giờ, **TỰ** đọc loa, **TỰ** chuyển bước,
   **TỰ** chạy tới Kết thúc rồi hiện điểm. Thầy **KHÔNG** bấm chuyển bước.
-- Có bước nhỏ chi tiết (~23 bước).
+- Có bước nhỏ chi tiết (~29 bước).
 - **Sai ở bước nào thì DỪNG NGAY ở bước đó và LÀM LẠI TỪ ĐẦU.**
   Không trừ điểm rồi đi tiếp. Đây là chế độ ép phải đúng.
 - **Thời gian từng bước/bài do thầy/admin tự điền bằng giây.**
@@ -212,13 +237,13 @@ Mỗi lỗi có: `CODE`, `NAME`, `DEDUCT_POINTS`, `IS_LIET (0/1)`.
   thầy chọn lỗi cụ thể (ví dụ "Dừng xa vạch quá 500mm -5",
   "Tụt dốc quá 500mm - Liệt"). Không được trừ chung chung -5.
 - Máy tự cộng/trừ điểm theo bảng lỗi đã cấu hình. Bắt đầu 100 điểm.
-- Có bước nhỏ chi tiết (~23 bước), giống Luồng 1 về danh sách bước.
+- Có bước nhỏ chi tiết (~29 bước), giống Luồng 1 về danh sách bước.
 - Chạy hết toàn bộ bài thi thì hiện điểm + ĐẠT (>=80) / TRƯỢT (<80).
 - Lỗi liệt: bấm `-` vào lỗi liệt thì dừng ngay, hiện RỚT + lý do.
 
 ### Luồng 3 — Bấm chay, thi thật, không bước nhỏ (MANUAL CHUẨN) — `SHA0_0600`
 
-- **KHÔNG có bước nhỏ chi tiết.** Chỉ có đúng 11 bài chính thức.
+- **KHÔNG có bước nhỏ chi tiết.** Chỉ có đúng 14 mục chính thức.
 - Loa chỉ đọc tên bài, ví dụ "Bài thi xuất phát" rồi đếm 20 giây, xong.
 - Thầy **PHẢI bấm** mới qua bài tiếp theo. Không tự chuyển như Luồng 1.
 - Thầy cũng bấm **+ / -** như Luồng 2 để tính điểm (bấm `-` thì chọn
@@ -232,7 +257,7 @@ Mỗi lỗi có: `CODE`, `NAME`, `DEDUCT_POINTS`, `IS_LIET (0/1)`.
 |  | Luồng 1 | Luồng 2 | Luồng 3 |
 |---|---|---|---|
 | Tự chuyển bước? | Có, tự động | Không, thầy bấm | Không, thầy bấm |
-| Bước nhỏ? | Có (~23) | Có (~23) | Không, chỉ 11 bài |
+| Bước nhỏ? | Có (~29) | Có (~29) | Không, chỉ 14 mục |
 | Bấm + / - ? | Không | Có | Có |
 | Chỉnh được giây? | Có, tự do | Có, theo preset | Không |
 | Sai thì sao? | Dừng, làm lại từ đầu | Trừ điểm, đi tiếp (trừ liệt) | Trừ điểm, đi tiếp (trừ liệt) |
@@ -296,7 +321,7 @@ Không kiểm tra quyền trong controller/mod (trừ kiểm tra owner preset �
 | `SHA0_0300` | Mẫu cấu hình (Preset) | SH | Tạo preset, Áp dụng, Tự setup riêng |
 | `SHA0_0400` | Thi Luồng 1 — Tự động | SH | Chỉ nút Bắt đầu, tự chạy |
 | `SHA0_0500` | Thi Luồng 2 — Bấm chay chi tiết | SH | Nút Next / + / - theo bước nhỏ |
-| `SHA0_0600` | Thi Luồng 3 — Bấm chay thi thật | SH | Nút Next / + / - theo 11 bài |
+| `SHA0_0600` | Thi Luồng 3 — Bấm chay thi thật | SH | Nút Next / + / - theo 14 mục |
 | `SHA0_0700` | Kết quả & Lịch sử phiên thi | SH | Điểm, đạt/trượt, bước trượt, lý do |
 
 ---
@@ -310,10 +335,12 @@ Database: `sahinh_b2`, MySQL 8, Docker container `mysql`.
 | `V1__create_foundation_auth.sql` | `SYS_USER`, `SYS_ROLE`, `SYS_ROLE_USER`, `SYS_FUNCTION`, `SYS_ROLE_FUNCTION`, `SYS_FUNCTION_PAGE`, seed SUPERADMIN/TEACHER |
 | `V2__create_exam_config.sql` | `SH_PRESET`, `SH_LESSON`, `SH_STEP`, `SH_ERROR_RULE`, seed 11 bài + bước nhỏ §3.2 + bảng lỗi §3.3 |
 | `V3__create_exam_session.sql` | `SH_SESSION`, `SH_SESSION_LOG` |
+| `V4__add_transmission_and_dangerous.sql` | `SH_SESSION.TRANSMISSION`, `SH_PRESET.DANGEROUS_ENABLED` / `DANGEROUS_TIMEOUT_SECONDS`, lỗi `DANGEROUS` |
+| `V5__add_intersection_crossings.sql` | 11 bài -> 14 mục (thêm ngã tư (2)/(3)/(4), đổi LESSON_NO 7->8, 8->10, 9->11, 10->12, 11->14), 29 bước, lỗi quá giờ ngã tư |
 
 Bảng chính:
 - `SH_PRESET (ID, NAME, OWNER_ID, IS_TEMPLATE, IS_ACTIVE, CREATED_AT)`
-- `SH_LESSON (ID, PRESET_ID, LESSON_NO 1-11, NAME, ANNOUNCE_TEXT, DURATION_SECONDS, SORT_ORDER)`
+- `SH_LESSON (ID, PRESET_ID, LESSON_NO 1-14, NAME, ANNOUNCE_TEXT, DURATION_SECONDS, SORT_ORDER)`
 - `SH_STEP (ID, LESSON_ID, STEP_NO, NAME, ANNOUNCE_TEXT, DURATION_SECONDS, ENABLED, SORT_ORDER)`
 - `SH_ERROR_RULE (ID, PRESET_ID, LESSON_ID, CODE, NAME, DEDUCT_POINTS, IS_LIET, SORT_ORDER)`
 - `SH_SESSION (ID, USER_ID, PRESET_ID, FLOW 1/2/3, SCORE, PASSED, FAILED_STEP, FAILED_REASON, STARTED_AT, ENDED_AT)`
@@ -331,7 +358,7 @@ rồi mới ALTER — MySQL không có `ADD COLUMN IF NOT EXISTS`).
 3 card lớn, mỗi card ghi rõ tên luồng + mô tả 1 dòng + nút Bắt đầu:
 - Luồng 1 — Thi chuẩn tự động — "Bấm bắt đầu 1 lần, máy tự chạy hết"
 - Luồng 2 — Bấm chay chi tiết — "Thầy bấm + / - theo từng bước nhỏ"
-- Luồng 3 — Bấm chay thi thật — "Chỉ 11 bài, thầy bấm mới qua bài"
+- Luồng 3 — Bấm chay thi thật — "Chỉ 14 mục, thầy bấm mới qua bài"
 Thêm ô chọn preset đang áp dụng + tên học viên (nhập tay).
 
 ### 9.2. Màn hình thi (dùng chung layout cho 3 luồng)
@@ -339,7 +366,7 @@ Thêm ô chọn preset đang áp dụng + tên học viên (nhập tay).
   khi còn <= 5 giây.
 - Tên bài hiện tại + tên bước nhỏ hiện tại (nếu có).
 - Lời loa đang đọc (hiện chữ luôn, phòng khi loa không đọc được).
-- Điểm còn lại lớn, rõ: `100 -> 95 -> ...`, thanh tiến trình 11 bài.
+- Điểm còn lại lớn, rõ: `100 -> 95 -> ...`, thanh tiến trình 14 mục.
 - Nút Tắt tiếng / Bật loa.
 - Luồng 1: chỉ có nút Bắt đầu / Hoàn thành bước / Làm lại từ đầu.
 - Luồng 2/3: nút to, dễ bấm khi đang đứng ngoài sân: **+ Đúng** (xanh),
@@ -350,7 +377,7 @@ Thêm ô chọn preset đang áp dụng + tên học viên (nhập tay).
 - Mobile phải dùng được: nút to, chữ to, không cần cuộn ngang.
 
 ### 9.3. Màn hình cấu hình (Superadmin / Teacher)
-- Bảng 11 bài: mỗi dòng có tên, lời loa (input text), giây (input number),
+- Bảng 14 mục: mỗi dòng có tên, lời loa (input text), giây (input number),
   công tắc bật/tắt bước nhỏ.
 - Mở rộng 1 bài thì thấy list bước nhỏ bên trong, mỗi bước có lời loa,
   giây, công tắc riêng.
@@ -386,7 +413,7 @@ Thêm ô chọn preset đang áp dụng + tên học viên (nhập tay).
 | S02 | Cấu hình thi | Superadmin tạo được preset, sửa được giây/bước/lỗi/liệt, teacher bấm Áp dụng được, Tự setup riêng copy ra bản riêng không ghi đè gốc |
 | S03 | Luồng 1 — Tự động + `ExamEngine` | Bấm Bắt đầu 1 lần, máy tự đọc loa + đếm giờ + chuyển bước tới Kết thúc, sai thì dừng + làm lại từ đầu, hiện điểm |
 | S04 | Luồng 2 — Bấm chay chi tiết | Thầy bấm Next / + / - theo từng bước nhỏ, điểm tự trừ đúng bảng lỗi, lỗi liệt dừng ngay hiện RỚT |
-| S05 | Luồng 3 — Bấm chay thi thật | Chỉ 11 bài, không bước nhỏ, thầy phải bấm mới qua bài, bấm + / -, không chỉnh được giờ/điểm trong luồng này |
+| S05 | Luồng 3 — Bấm chay thi thật | Chỉ 14 mục, không bước nhỏ, thầy phải bấm mới qua bài, bấm + / -, không chỉnh được giờ/điểm trong luồng này |
 | S06 | Kết quả & Lịch sử | Hiện điểm, đạt/trượt, bước trượt + lý do, lưu lịch sử phiên thi, xem lại được |
 | S07 | Polish | Âm thanh loa + bíp ổn, nút Tắt tiếng, mobile dùng được, test lại 3 luồng, cập nhật docs |
 
@@ -406,7 +433,7 @@ Trước khi báo xong mỗi session, chạy và ghi kết quả vào report:
      Hoàn thành hết -> hiện điểm.
    - Luồng 2: bấm `-` chọn lỗi "Dừng xa vạch quá 500mm" -> điểm trừ đúng 5.
      Bấm `-` chọn lỗi liệt "Tắt máy trên dốc" -> hiện RỚT ngay.
-   - Luồng 3: kiểm tra chỉ có 11 bài, không có bước nhỏ, thầy không bấm
+   - Luồng 3: kiểm tra chỉ có 14 mục, không có bước nhỏ, thầy không bấm
      thì không tự qua bài. Bấm `+` / `-` tính điểm đúng.
    - Preset: teacher bấm Áp dụng preset Superadmin -> dùng đúng giờ/điểm
      của preset đó. Bấm Tự setup riêng -> sửa bản riêng không đổi bản gốc.

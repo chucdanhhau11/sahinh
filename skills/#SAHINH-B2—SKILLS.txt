@@ -597,3 +597,19 @@ ngắn ở "…vào nơi" (thiếu "đỗ", thầy nói đè từ 804.4 s) — n
 đánh giá, khó nghe thì quay lại file TTS cho bài 10. Nguồn tách: nhận dạng
 whisper-small toàn bộ video + xác minh giọng loa bằng F0 (193–213 Hz so
 với thầy nam 125–126 Hz); chi tiết mốc cắt ở report_session_11.md.
+
+# PHỤ LỤC — 2026-11-26 (S12: trình tự thi chính thức 14 mục)
+
+Trình tự thi thật là 14 mục, không phải 11 bài: xe qua ngã tư 4 lần
+trong sân, mỗi lần là 1 mục chấm riêng (ngã tư (1)..(4), mỗi lần quá
+20s -5đ, quá 30s loại trực tiếp). V5 đổi LESSON_NO thành số thứ tự
+chính thức 1–14 (7->8, 8->10, 9->11, 10->12, 11->14; thêm 7/9/13),
+29 bước nhỏ, 39 lỗi (thêm lỗi quá giờ ngã tư cho cả 4 lần qua).
+Số tự động bỏ bài 11 (Thay đổi số). 3 ngã tư mới dùng chung lời loa
+"Bài thi qua ngã tư có đèn tín hiệu" nên dùng chung file lesson-05.mp3,
+không cần thu thêm. LESSON_AUDIO trong exam.js map 7/9/13 về
+lesson-05.mp3. Chỉ sửa preset mẫu id=1; preset đã copy trước V5 giữ
+nguyên 11 bài. Lỗi bắt được khi test: V5 lần đầu quên UPDATE đường sắt
+8->10 (số 8 trùng, thiếu số 10; Luồng 1/2 đọc nhầm file lesson-07 ở
+bài đường sắt) — đổi số bài phải rà đủ 1 lượt old->new. Chi tiết:
+report_session_12.md.

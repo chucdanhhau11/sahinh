@@ -8,8 +8,8 @@ Không cảm biến, không phần cứng: mô phỏng bằng đồng hồ + loa
 | Luồng | Cách chạy |
 |---|---|
 | **1 — Thi chuẩn, tự động** (`/SH/SHA0_0400`) | Thầy chỉ bấm **Bắt đầu 1 lần**, máy tự đếm giờ, tự đọc loa, tự chuyển bước tới Kết thúc. Sai / hết giờ ở bước nào thì **dừng ngay và làm lại từ đầu**. Giây chỉnh tự do theo từng thầy, không ép luật 18 phút. |
-| **2 — Bấm chay chi tiết** (`/SH/SHA0_0500`) | Thầy tự bấm qua từng **bước nhỏ** (~23 bước), bấm **+** nếu đúng, **-** nếu sai (chọn lỗi cụ thể, máy tự trừ điểm theo DB). Lỗi liệt -> **RỚT** ngay. |
-| **3 — Bấm chay thi thật** (`/SH/SHA0_0600`) | **Không bước nhỏ**, chỉ 11 bài. Loa chỉ đọc tên bài (vd "Bài thi xuất phát" đếm 20 giây). Thầy **phải bấm** mới qua bài, cũng bấm **+ / -**. Không chỉnh giờ/điểm trong luồng này. |
+| **2 — Bấm chay chi tiết** (`/SH/SHA0_0500`) | Thầy tự bấm qua từng **bước nhỏ** (~29 bước), bấm **+** nếu đúng, **-** nếu sai (chọn lỗi cụ thể, máy tự trừ điểm theo DB). Lỗi liệt -> **RỚT** ngay. |
+| **3 — Bấm chay thi thật** (`/SH/SHA0_0600`) | **Không bước nhỏ**, chỉ 14 mục. Loa chỉ đọc tên bài (vd "Bài thi xuất phát" đếm 20 giây). Thầy **phải bấm** mới qua bài, cũng bấm **+ / -**. Không chỉnh giờ/điểm trong luồng này. |
 
 - Bắt đầu 100 điểm, đạt từ 80. Điểm liệt cấu hình được, ví dụ **tắt máy trên dốc = rớt**.
 - Preset: Superadmin setup sẵn, thầy bấm **Áp dụng** để dùng, hoặc **Tự setup riêng** (hệ thống copy ra bản riêng, không ghi đè bản gốc).
@@ -56,6 +56,6 @@ curl http://localhost:8080/actuator/health
 ## Tài liệu
 
 - `PROMPT.md` — prompt chi tiết để agent/AI khác build lại app này.
-- `ROADMAP.md` — trạng thái project, 11 bài, bảng lỗi, kế hoạch S01–S07.
+- `ROADMAP.md` — trạng thái project, 14 mục, bảng lỗi, kế hoạch S01–S12.
 - `PROJECT_INDEX.md` — bản đồ mã nguồn, module, migration.
 - `docs/features/<FEATURE>/report/` — báo cáo từng session.

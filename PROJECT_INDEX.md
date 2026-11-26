@@ -66,6 +66,7 @@ API theo convention `/api/{SYSTEM_CODE}/{SUBSYSTEM_CODE}/{FUNCTION_CODE}/...`.
 | Migration V2 | `db/migration/V2__create_exam_config.sql` | `SH_PRESET/SH_LESSON/SH_STEP/SH_ERROR_RULE`; seed preset "Chuẩn thi thật", 11 bài, 23 bước, 24 lỗi (trong đó "Tắt máy trên dốc" IS_LIET=1). |
 | Migration V3 | `db/migration/V3__create_exam_session.sql` | `SH_SESSION/SH_SESSION_LOG`. |
 | Migration V4 | `db/migration/V4__add_transmission_and_dangerous.sql` | `SH_SESSION.TRANSMISSION` (AUTO/MANUAL, mặc định MANUAL); `SH_PRESET.DANGEROUS_ENABLED` + `DANGEROUS_TIMEOUT_SECONDS` (mặc định TẮT/5s); seed lỗi `DANGEROUS` -10, không liệt. Idempotent, không sửa V1–V3. |
+| Migration V5 | `db/migration/V5__add_intersection_crossings.sql` | 11 bài -> 14 mục: thêm ngã tư (2)/(3)/(4) (LESSON_NO 7/9/13, lời loa chung lesson-05), đổi LESSON_NO 7->8, 8->10, 9->11, 10->12, 11->14 (chỉ preset mẫu id=1); 29 bước; lỗi ngã tư quá 20s -5 / quá 30s liệt cho cả 4 lần qua + nhân bản Vượt đèn đỏ / Không xi nhan. Idempotent, không sửa V1–V4. |
 
 ## 6. Lệnh vận hành
 
