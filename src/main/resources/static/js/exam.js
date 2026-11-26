@@ -13,7 +13,7 @@
   function flowBase(f) { return '/api/SH/A0/' + ['SHA0_0400', 'SHA0_0500', 'SHA0_0600'][f - 1]; }
 
   function el(id) { return document.getElementById(id); }
-  // Âm thanh thi (S10): file mp3 giọng nữ thu sẵn cho 11 bài + tình huống
+  // Âm thanh thi (S10): file mp3 giọng nữ thu sẵn cho 14 mục + tình huống
   // nguy hiểm (static/audio/). Loa thi thật đọc "Bài thi tiếp theo, bài thi
   // <tên>" khi chuyển bài (bài 1 không có "tiếp theo"), nên lesson-02…11 có
   // tiền tố đó trong file, còn chữ hiện trên màn hình vẫn là tên bài.
@@ -34,9 +34,9 @@
     'Tình huống nguy hiểm': 'dangerous.mp3'
   };
   let currentAudio = null;
-  // File mp3 theo số bài (khớp LESSON_NO trong V2). Dùng khi bước chi tiết
-  // không có câu riêng trong AUDIO_MAP mà vừa sang bài mới.
-  const LESSON_AUDIO = { 1: 'lesson-01.mp3', 2: 'lesson-02.mp3', 3: 'lesson-03.mp3', 4: 'lesson-04.mp3', 5: 'lesson-05.mp3', 6: 'lesson-06.mp3', 7: 'lesson-07.mp3', 8: 'lesson-08.mp3', 9: 'lesson-09.mp3', 10: 'lesson-10.mp3', 11: 'lesson-11.mp3' };
+  // File mp3 theo số bài (khớp LESSON_NO sau V5: 14 mục). Ngã tư (2)/(3)/(4)
+  // (bài 7/9/13) dùng chung file lesson-05.mp3 vì loa đọc cùng 1 câu.
+  const LESSON_AUDIO = { 1: 'lesson-01.mp3', 2: 'lesson-02.mp3', 3: 'lesson-03.mp3', 4: 'lesson-04.mp3', 5: 'lesson-05.mp3', 6: 'lesson-06.mp3', 7: 'lesson-05.mp3', 8: 'lesson-07.mp3', 9: 'lesson-05.mp3', 10: 'lesson-08.mp3', 11: 'lesson-09.mp3', 12: 'lesson-10.mp3', 13: 'lesson-05.mp3', 14: 'lesson-11.mp3' };
   function stopAudio() {
     if (currentAudio) { try { currentAudio.pause(); } catch (e) {} currentAudio = null; }
     if (window.speechSynthesis) { try { window.speechSynthesis.cancel(); } catch (e) {} }

@@ -5,7 +5,7 @@ import com.sahinh.io.vn.core.exam.ExamService;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 
-/** mod — Thi Luồng 3 — Bấm chay thi thật: không bước nhỏ, chỉ 11 bài, thầy phải bấm mới qua bài.. Nghiệp vụ thi nằm trong ExamService dùng chung. */
+/** mod — Thi Luồng 3 — Bấm chay thi thật: không bước nhỏ, chỉ 14 mục, thầy phải bấm mới qua bài.. Nghiệp vụ thi nằm trong ExamService dùng chung. */
 @Component
 public class SHA0_0600_mod {
     private final ExamService exam;

@@ -34,7 +34,7 @@ public class ExamEngine {
         return (int) ((elapsedSeconds - TOTAL_LIMIT_SECONDS) / 3);
     }
 
-    /** Số tự động thì bỏ bài 9 (Thay đổi số trên đường bằng). Mặc định số sàn. */
+    /** Số tự động thì bỏ bài 11 (Thay đổi số trên đường bằng). Mặc định số sàn. */
     public static boolean isAutoTransmission(String transmission) {
         return "AUTO".equalsIgnoreCase(transmission);
     }
@@ -65,7 +65,7 @@ public class ExamEngine {
 
     /**
      * Như buildPlan 4 tham số, thêm hộp số: transmission="AUTO" thì bỏ
-     * bài 9 khỏi kế hoạch (plan, tiến trình, chấm điểm đều bỏ nhất quán).
+     * bài 11 khỏi kế hoạch (plan, tiến trình, chấm điểm đều bỏ nhất quán).
      */
     public static List<PlanItem> buildPlan(List<Map<String, Object>> lessons,
                                            Map<Long, List<Map<String, Object>>> stepsByLesson,
@@ -75,8 +75,8 @@ public class ExamEngine {
         boolean auto = isAutoTransmission(transmission);
         for (Map<String, Object> l : lessons) {
             int lessonNo = ((Number) l.get("LESSON_NO")).intValue();
-            if (auto && lessonNo == 9) {
-                continue; // Số tự động không thi bài 9.
+            if (auto && lessonNo == 11) {
+                continue; // Số tự động không thi bài 11.
             }
             long lessonId = ((Number) l.get("ID")).longValue();
             String name = String.valueOf(l.get("NAME"));
