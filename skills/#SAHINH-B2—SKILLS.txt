@@ -627,3 +627,18 @@ từ thật ở 01 ("Bắt đầu"), 05 ("tín hiệu điều khiển giao thôn
 trên clip lesson-01 chỉ 1 giây — clip quá ngắn thì đừng tin 1 model.
 File loa TikTok S11 vẫn còn trong git (ed58183) + cut-real/. Chi tiết:
 report_session_13.md.
+
+# PHỤ LỤC — 2026-11-27 (S14: sửa tiếng chồng chéo)
+
+User báo sau S13: tiếng chồng nhau, tiếng bài trước vẫn phát khi bài
+sau đã đọc. Nguyên nhân (bắt bằng probe bọc window.Audio, không đoán):
+(1) playFile cũ chỉ ghi đè currentAudio mà không pause file cũ -> file
+cũ mồ côi, stopAudio không dừng được; (2) catch/onerror xoá currentAudio
+vô điều kiện -> play() của beep reject AbortError (bị pause ngay sau
+play) thì catch chạy muộn, xoá luôn tham chiếu tới file loa đang phát.
+Sửa: playFile luôn pause file cũ, handler chỉ xoá khi currentAudio vẫn
+trỏ đúng element đó, AbortError thì không fallback; thêm playBeepThen
+(beep trọn 0,83s rồi mới đọc, kèm timeout 900ms dự phòng ended tới
+muộn, showSeq huỷ announce cũ); show() kiểm tra busy — tiếng trước
+còn phát thì bỏ qua beep, đọc thẳng tên bài. Test chồng tiếng 3 luồng:
+0 chồng. Chi tiết: report_session_14.md.

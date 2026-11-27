@@ -471,3 +471,17 @@ Không tạo migration mới nếu không có thay đổi schema thực sự.
   H2: Luồng 3 14 mục ĐẠT 100/100, đủ 11 file mới theo thứ tự. Chi tiết:
   report_session_13.md. Còn phải kiểm chứng trên máy dev: nghe thử
   3 luồng bằng giọng mới, nhất là lesson-01/05/08/09.
+- S14 (27/11, user báo tiếng chồng chéo sau S13): lỗi ở `exam.js`
+  (có từ S10, không phải do file mp3 mới) — `playFile` cũ ghi đè
+  `currentAudio` mà không pause file cũ nên tiếng bài trước thành
+  "mồ côi", không dừng được; handler `catch` xoá `currentAudio` vô
+  điều kiện nên `AbortError` của beep xoá luôn tham chiếu file loa
+  đang phát. Sửa: `playFile` luôn pause file cũ, handler chỉ xoá khi
+  còn trỏ đúng element, `AbortError` không fallback; thêm
+  `playBeepThen` (beep trọn 0,83s rồi mới đọc, timeout 900ms dự
+  phòng `ended` tới muộn, `showSeq` huỷ announce cũ); `show()` kiểm
+  tra `busy` — tiếng trước còn phát thì bỏ beep, đọc thẳng tên bài.
+  Test chồng tiếng 3 luồng (bấm nhanh Luồng 3, Luồng 2 qua ranh giới
+  bài, Luồng 1 tự động 45s): **0 chồng**. Chi tiết:
+  report_session_14.md. Còn phải kiểm chứng trên máy dev: nghe thử
+  3 luồng + bấm nhanh, hard-refresh để lấy `exam.js` mới.
