@@ -41,14 +41,49 @@
     if (currentAudio) { try { currentAudio.pause(); } catch (e) {} currentAudio = null; }
     if (window.speechSynthesis) { try { window.speechSynthesis.cancel(); } catch (e) {} }
   }
-  function playFile(file, fallback) {
+  // S14: CHỈ 1 tiếng phát tại 1 thời điểm. playFile LUÔN dừng file đang
+  // phát trước khi mở file mới. Hai lỗi đã bắt được bằng probe (s14-probe):
+  // (1) playFile cũ chỉ ghi đè biến currentAudio mà không pause file cũ,
+  // nên file cũ thành "mồ côi", không bao giờ bị stopAudio() dừng được;
+  // (2) handler catch/onerror cũ xoá currentAudio vô điều kiện — khi
+  // play() của beep bị reject (AbortError vì bị pause ngay sau play),
+  // catch chạy muộn và xoá luôn tham chiếu tới file loa đang phát dở,
+  // làm file đó cũng thành mồ côi. Cả hai đều gây tiếng bài trước chồng
+  // lên tiếng bài sau. Sửa: handler chỉ xoá khi currentAudio vẫn trỏ
+  // đúng element đó; AbortError (bị dừng do chuyển bài nhanh) thì không
+  // fallback, không chạm currentAudio.
+  function playFile(file, fallback, onEnded) {
     try {
+      if (currentAudio) { try { currentAudio.pause(); } catch (e) {} currentAudio = null; }
       const a = new Audio('/audio/' + file);
       currentAudio = a;
-      a.onerror = function () { currentAudio = null; if (fallback) fallback(); };
+      a.onended = function () { if (currentAudio === a) currentAudio = null; if (onEnded) onEnded(); };
+      a.onerror = function () { if (currentAudio === a) currentAudio = null; if (fallback) fallback(); };
       const p = a.play();
-      if (p && p.catch) p.catch(function () { currentAudio = null; if (fallback) fallback(); });
+      if (p && p.catch) p.catch(function (err) {
+        if (err && err.name === 'AbortError') return;
+        if (currentAudio === a) currentAudio = null;
+        if (fallback) fallback();
+      });
     } catch (e) { currentAudio = null; if (fallback) fallback(); }
+  }
+  // S14: beep "tính tong" rồi mới đọc loa (như thi thật), không chồng
+  // tiếng. fn chỉ chạy khi beep đã phát xong và chưa sang bài khác
+  // (showSeq đổi mỗi lần show()). Có thêm timeout dự phòng 900ms vì
+  // sự kiện ended của Audio có thể tới muộn hơn cú bấm tiếp theo của
+  // thầy (đã gặp ở test Luồng 2: beep hết mà ended chưa kịp chạy thì
+  // tên bài bị bỏ qua); bên nào tới trước thì đọc, bên kia thành no-op.
+  // Nếu tắt loa thì đọc ngay, không beep.
+  let showSeq = 0;
+  function playBeepThen(fn) {
+    const seq = showSeq;
+    if (muted) { fn(); return; }
+    let done = false;
+    const run = function () { if (done) return; done = true; if (seq === showSeq) fn(); };
+    setTimeout(run, 900);
+    playFile('beep.mp3',
+      function () { beepOsc(); setTimeout(run, 200); },
+      run);
   }
   function speakTts(text) {
     if (!('speechSynthesis' in window)) return;
@@ -93,10 +128,6 @@
       o.stop(audioCtx.currentTime + 0.15);
     } catch (e) { /* không có audio */ }
   }
-  function beep() {
-    if (muted) return;
-    playFile('beep.mp3', beepOsc);
-  }
   function show() {
     if (!plan) return;
     const it = plan.items[idx];
@@ -107,8 +138,18 @@
     el('progress-text').textContent = (idx + 1) + ' / ' + plan.items.length;
     remaining = it.durationSeconds;
     renderTimer();
-    announceItem();
-    beep();
+    // S14: dừng tiếng cũ, beep "tính tong" rồi mới đọc tên bài (như thi
+    // thật). Trước đây beep() chạy ngay sau announceItem() trong cùng 1
+    // tác vụ nên beep bị pause ngay khi vừa play (không nghe được chuông
+    // thật, chỉ còn beep oscillator dự phòng) và tiếng loa bị mồ côi.
+    ++showSeq;
+    // S14: nếu tiếng trước (beep hoặc loa bài trước) vẫn đang phát thì
+    // bỏ qua beep, đọc thẳng tên bài — nếu không, thầy bấm theo nhịp
+    // beep sẽ không bao giờ nghe được tên bài (beep hết thì bấm mới đã
+    // sang bài, announce cũ bị huỷ). Beep chỉ phát khi đang yên lặng.
+    const busy = currentAudio && !currentAudio.paused && !currentAudio.ended;
+    stopAudio();
+    if (muted || busy) { announceItem(); } else { playBeepThen(announceItem); }
     clearInterval(timer);
     // Tình huống nguy hiểm: tới đúng bước/bài đã chọn thì dừng đồng hồ,
     // hiện đèn đỏ + đọc loa, chờ thầy bấm nút nguy hiểm.
@@ -140,8 +181,9 @@
     hazardLeft = plan.dangerousTimeoutSeconds || 5;
     el('hazard-count').textContent = hazardLeft;
     ov.style.display = 'block';
-    speak('Tình huống nguy hiểm');
-    beep();
+    // S14: beep rồi mới đọc cảnh báo (như show()); tiếng bài hiện tại
+    // được nhường cho cảnh báo nguy hiểm.
+    playBeepThen(function () { speak('Tình huống nguy hiểm'); });
     clearInterval(hazardTimer);
     hazardTimer = setInterval(function () {
       hazardLeft--;
@@ -179,7 +221,8 @@
     el('result-reason').textContent = d.failedReason || '';
     el('result-link').href = '/SH/SHA0_0700?sessionId=' + sessionId;
     // S10: đỗ -> loa chúc mừng như sân thi thật ("Chúc mừng bạn đã thi đạt...").
-    if (d.passed && !muted) playFile('result-pass.mp3');
+    // S14: dừng tiếng bài cuối trước khi chúc mừng, không để chồng tiếng.
+    if (d.passed && !muted) { stopAudio(); playFile('result-pass.mp3'); }
   }
   async function logCurrent(errorRuleId) {
     const it = plan.items[idx];
